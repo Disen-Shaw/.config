@@ -1,0 +1,6 @@
+snippet openocd "openocd script"
+openocd -f interface/${1:jlink.cfg} -f target/${2:stm32f4x.cfg} \
+				-c init -c halt \
+				-c "flash write_image erase $(BUILD_DIR)/$(TARGET).elf" \
+				-c reset -c shutdown
+endsnippet
