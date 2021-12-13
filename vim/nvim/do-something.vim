@@ -38,5 +38,4 @@ autocmd FileType cpp map mc :make clean<CR>
 autocmd FileType cpp map mr :make run<CR>
 "对markdown的构造指令
 autocmd FileType markdown map mk :MarkdownPreviewToggle<CR>
-"对python的构造指令
-autocmd FileType python map mk :make<CR>
+autocmd FileType markdown map tb :TableModeToggle<CR>

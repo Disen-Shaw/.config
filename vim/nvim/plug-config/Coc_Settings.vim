@@ -14,8 +14,6 @@ let g:coc_global_extensions = [
 " 智能翻译
 map ff :CocCommand translator.popup<CR>
 
-" snippets
-
 "=====================================================================================
 
 " TextEdit might fail if hidden is not set.

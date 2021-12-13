@@ -6,9 +6,9 @@
 "   |_|  |_|\__, |   \_/ |_|_| |_| |_|_|  \___|
 "           |___/                              
 "   
-"                                  _______________ 
-"                                <  Author:邵笛笙  >
-"                                  --------------- 
+"                                  _____________ 
+"                                <  Hello world >
+"                                  ------------- 
 "                                         \   ^__^
 "                                          \  (oo)\_______
 "                                             (__)\       )\/\
@@ -70,6 +70,7 @@ set softtabstop=2
 set encoding=utf-8
 set langmenu=zh_CN.UTF-8
 "set ambiwidth=double "防止特殊符号无法正常显示
+"
 "开启行号
 set number
 ""开启实时行号
@@ -136,7 +137,6 @@ map L 5l
 "整理代码
 map GGG gg=G
 
-
 "刷新
 map R :source $HOME/.config/nvim/init.vim<CR>
 "去除高亮的快捷键
@@ -149,6 +149,7 @@ let mapleader=" "
 
 "相关的执行命令
 source $HOME/.config/nvim/do-something.vim
+"删除当前单词
 
 "分屏操作====================================================
 "向右分屏
@@ -176,17 +177,22 @@ map <left> :vertical resize+1<CR>
 "屏幕向右调整
 map <right> :vertical resize-1<CR>
 
+"新建一个标签页
+map <tab>n :tabe<CR>
+"切换到下一个标签页
+map <tab>= :+tabnext<CR>
+"切换到上一个标签页
+map <tab>- :-tabnext<CR>
+
+
 "插件配置====================================================
 source $HOME/.config/nvim/plug-cfg.vim
 "界面设置====================================================
-"主题
-colorscheme gruvbox
-let g:gruvbox_termcolors=16
-set background=dark    "暗模式
 "关闭屏闪
 set noerrorbells visualbell t_vb=
 autocmd GUIEnter * set visualbell t_vb=
 "上下栏的最小值
 set scrolloff=6
+
 "添加 cscope
 "cs add cscope.out
