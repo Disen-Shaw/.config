@@ -77,3 +77,18 @@ nmap <F10> :TagbarToggle<CR>
 	let g:lazygit_floating_window_corner_chars = ['╭', '╮', '╰', '╯'] " customize lazygit popup window corner characters
 	let g:lazygit_floating_window_use_plenary = 0 " use plenary.nvim to manage floating window if available
 	let g:lazygit_use_neovim_remote = 1 " fallback to 0 if neovim-remote is not installed
+"
+"
+" Plugins: vim-indet-guide
+" Author: kdheepak
+
+let g:indent_guides_guide_size = 1
+let g:indent_guides_guide_level = 1
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_color_change_percent = 1
+
+
+set termguicolors
+let g:Hexokinase_highlighters = ['virtual']
+
+

@@ -23,20 +23,21 @@
 "=====================================================================
 
 "基本设置
+let g:ruby_host_prog = '~/.local/share/gem/ruby/3.0.0/bin/neovim-ruby-host'
 let g:python_host_prog  = '/bin/python2'
 let g:python3_host_prog  = '/bin/python3'
 let g:clipboard = {
-      \   'name': 'myClipboard',
-      \   'copy': {
-      \      '+': ['tmux', 'load-buffer', '-'],
-      \      '*': ['tmux', 'load-buffer', '-'],
-      \    },
-      \   'paste': {
-      \      '+': ['tmux', 'save-buffer', '-'],
-      \      '*': ['tmux', 'save-buffer', '-'],
-      \   },
-      \   'cache_enabled': 1,
-      \ }
+					\   'name': 'myClipboard',
+					\   'copy': {
+					\      '+': ['tmux', 'load-buffer', '-'],
+					\      '*': ['tmux', 'load-buffer', '-'],
+					\    },
+					\   'paste': {
+					\      '+': ['tmux', 'save-buffer', '-'],
+					\      '*': ['tmux', 'save-buffer', '-'],
+					\   },
+					\   'cache_enabled': 1,
+					\ }
 "基础设置=============================================================
 "开启高亮
 syntax on
@@ -46,6 +47,9 @@ set foldmethod=manual
 
 "关闭鼠标
 set mouse=
+
+"与系统共享剪切板
+"set clipboard=unnamedplus
 
 "防止vi的某些老版本的某些设置影响操作
 set nocompatible
@@ -59,8 +63,9 @@ filetype plugin indent on
 "设置tab的格式
 set tabstop=2
 
-"设置自动对其格数为4
+"设置自动对其格数为2
 set shiftwidth=2
+set smartindent
 
 "设置退格键时可以删除4个空格
 set smarttab
@@ -96,8 +101,10 @@ set ignorecase
 set smartcase
 "进入新文件去除高亮,刷新也可以去除高亮
 exec "nohlsearch"
+
 "出错时，发出视觉提示，通常是屏幕闪烁
 set visualbell
+
 "启用256色
 set t_Co=256
 "当文件在外部被修改时，自动重新读取
@@ -137,8 +144,6 @@ map L 5l
 "整理代码
 map GGG gg=G
 
-"刷新
-map R :source $HOME/.config/nvim/init.vim<CR>
 "去除高亮的快捷键
 map <tab><CR> :nohlsearch<CR>
 "映射jk为esc键

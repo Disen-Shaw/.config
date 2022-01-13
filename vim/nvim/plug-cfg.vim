@@ -7,9 +7,7 @@
 "                                |___/                   
 "
 call plug#begin('$HOME/.config/nvim/plugged')
-"
 "如果要某个插件只对某种文件生效:在plug后面加上,'for':{'文件格式','vim-plug'}'vim-plug' 
-"插件目录
 
 "美化==================================================================
 "主题
@@ -33,13 +31,17 @@ Plug 'preservim/nerdtree'
   Plug 'honza/vim-snippets'
   Plug 'SirVer/ultisnips'
 "代码注释
-	Plug 'vim-scripts/DoxygenToolkit.vim'
+	Plug 'vim-scripts/DoxygenToolkit.vim', {'for': ['python','c','cpp','java']}
+	Plug 'kkoomen/vim-doge'
+	"Plug 'vim-scripts/DoxygenToolkit.vim'
 "显示文件中的函数bar
   Plug 'preservim/tagbar'
 "缓冲区(可以在文件之间跳转)
   Plug 'jlanzarotta/bufexplorer'
 "多光标
   Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+"颜色显示
+	Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 "替换
   Plug 'tpope/vim-surround'
 "Lazygit
@@ -51,7 +53,7 @@ Plug 'preservim/nerdtree'
 "Markdown文件类型
   Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 	Plug 'dhruvasagar/vim-table-mode', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-
+	Plug 'lervag/vimtex',{'for': ['tex','latex']}
 
 call plug#end() 
 

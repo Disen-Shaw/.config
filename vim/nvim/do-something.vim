@@ -15,27 +15,80 @@
 "                                                                (__)\       )\/\
 "                                                                    ||----w |
 "                                                                    ||     ||
-"==================================================================================
-"一些有关于特殊文件的操作映射
-"我的makefile文件常用的指令: 
-" @ make          : 构建项目					简写mk
-" @ make clean    : 清除构建项目			简写mc
-" @ make run      : 执行构建项目			简写mr
+" ==================================================================================
+" 关于特定类型文的操作映射																												 "
+" 我的 工程构建脚本 文件常用的指令:																								 "
+" @ make          : 构建项目					简写mk																			 "
+" @ make clean    : 清除构建项目			简写mc 																			 "
+" @ make run      : 执行构建项目			简写mr																			 "
+" ==================================================================================
 "
-"对于makefile中常用指令
-autocmd FileType make map mk :make<CR>
-autocmd FileType make map mc :make clean<CR>
-autocmd FileType make map mr :make run<CR>
-"c语言构建指令
-"前提需要Makefile文件
-autocmd FileType c map mk :make<CR>
-autocmd FileType c map mc :make clean<CR>
-autocmd FileType c map mr :make run<CR>
-"对c++的构造指令
-"前提需要Makefile文件
-autocmd FileType cpp map mk :make<CR>
-autocmd FileType cpp map mc :make clean<CR>
-autocmd FileType cpp map mr :make run<CR>
-"对markdown的构造指令
-autocmd FileType markdown map mk :MarkdownPreviewToggle<CR>
-autocmd FileType markdown map tb :TableModeToggle<CR>
+" =================== 键位定义 ======================
+"
+	map mk :call CompileCmd()<CR>
+	map mc :call CleanCmd()<CR>
+	map mr :call RunCmd()<CR>
+"
+" ==================================================================================
+
+" =================== 函数定义======================
+" 编译脚本
+function! CompileCmd()
+	"保存文件
+	execute "w"
+	"c 语言构建命令
+	if &filetype == 'c'
+		execute 'make'
+	"cpp 构建命令
+	elseif &filetype == 'cpp'
+		execute 'make'
+	"makefile 执行 make 命令
+	elseif &filetype == 'make'
+		execute 'make'
+	elseif &filetype == 'tex'
+		execute 'VimtexStop'
+		execute 'VimtexCompile'
+	elseif &filetype == 'java'
+		execute "!time javac %"
+	endif
+endfunction
+
+" 清理脚本 
+function! CleanCmd()
+	execute 'w'
+	if &filetype == 'c'
+		execute "make clean"
+	elseif &filetype == 'cpp'
+		execute "make clean"
+	elseif &filetype == 'make'
+		execute 'make clean'
+	elseif &filetype == 'tex'
+		execute 'VimtexClean'
+	endif
+endfunction
+
+" 执行脚本
+function! RunCmd()
+	execute "w"
+	" 运行 c 的可执行文件
+	if &filetype == 'c'
+		execute "make run"
+	" 运行 cpp 的可执行文件
+	elseif &filetype == 'cpp'
+		execute "make run"
+	" Python 运行命令
+	elseif &filetype == 'python'
+		execute "!time python %"
+	" shell脚本 运行命令
+	elseif &filetype == 'sh'
+		execute "!time sh %"
+	elseif &filetype == 'markdown'
+		exec "MarkdownPreviewToggle"
+	elseif &filetype == 'make'
+		execute 'make run'
+	elseif &filetype == 'tex'
+		execute 'VimtexView'
+	elseif &filetype == 'lua'
+		execute "!time lua %"
+	endif
+endfunction
