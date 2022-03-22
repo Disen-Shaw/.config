@@ -39,6 +39,8 @@
     "variable": "\ue71b"
   },
   "coc.preferences.formatOnSaveFiletypes": [
+    "c",
+    "cpp",
     "sh",
     "lua",
     "python",

@@ -20,10 +20,20 @@ nnoremap <tab>t :NERDTreeToggle<CR>
 nmap <F10> :TagbarToggle<CR>
 "======================================================================
 "
+" Plugins: Comment
+lua require('Comment').setup()
+"
+"======================================================================
+"
+" Plugins: toggleTerm
+nnoremap <LEADER>tt :ToggleTerm size=20  direction=horizontal<CR>
+"
+"======================================================================
+"
 " Plugins: Vim-Snippets
 let g:UltiSnipsExpandTrigger="<c-e>"
-let g:UltiSnipsJumpForwardTrigger="<c-l>"
-let g:UltiSnipsJumpBackwardTrigger="<c-h>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 let g:UltiSnipsSinppetDirectories=['Ultisnips']
 "
 "======================================================================

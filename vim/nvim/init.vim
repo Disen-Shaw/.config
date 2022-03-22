@@ -17,7 +17,7 @@
 "                                 
 "=====================================================================
 
-" 基本环境设置
+" 基本环境路径设置
 let g:ruby_host_prog = '~/.local/share/gem/ruby/3.0.0/bin/neovim-ruby-host'
 let g:python_host_prog  = '/bin/python2'
 let g:python3_host_prog  = '/bin/python3'
@@ -140,8 +140,11 @@ map GGG gg=G
 
 " 去除高亮的快捷键
 map <tab><CR> :nohlsearch<CR>
+
 " 映射jk为esc键
 inoremap jk <esc>
+inoremap kj <esc>
+inoremap jj <esc>
 
 " Leader 键
 let mapleader=" "

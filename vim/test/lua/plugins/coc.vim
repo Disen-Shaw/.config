@@ -1,3 +1,4 @@
+
 " Set internal encoding of vim, not needed on neovim, since coc.nvim using some
 " unicode characters in the file autoload/float.vim
 
@@ -20,7 +21,7 @@ let g:coc_global_extensions = [
 " ccls
  
 " 智能翻译
-nmap ff <Plug>(coc-translator-p)
+nmap <LEADER>f <Plug>(coc-translator-p)
 
 "=====================================================================================
 
