@@ -1,0 +1,14 @@
+
+
+map J 5j
+map K 5k
+map H ^
+map L $
+
+nmap S :w<CR>
+map <tab><CR> :nohlsearch<CR>
+
+inoremap jk <esc>
+inoremap jj <esc>
+inoremap kj <esc>
+inoremap kk <esc>
