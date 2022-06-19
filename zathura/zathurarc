@@ -1,0 +1,6 @@
+" PDF Reader with vim bindkeys
+" Author: Disen Shao
+" Zathura Configrations
+
+map ,d recolor
+map ,, nohlsearch
