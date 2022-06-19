@@ -6,5 +6,5 @@
 
 config_version: 2
 settings:
-  statusbar.show:
-    global: never
+  content.notifications.enabled:
+    https://blog.csdn.net: false

@@ -22,14 +22,19 @@ config.load_autoconfig(False)
 # dark mode
 config.set("colors.webpage.darkmode.enabled", True)
 
+# Start page
+c.url.start_pages = "/home/master/.config/qutebrowser/html/homepage/homepage.html"
+
 # Search Engines
 c.url.searchengines = {
         'DEFAULT': 'https://duckduckgo.com/?q={}',
-        'archwki': 'https://wiki.archlinux.org/?search={}',
+        'Bing': 'https://cn.bing.com/search?q={}',
         'google': 'https://www.google.com/search?q={}',
+        'wiki': 'https://zh.wikipedia.org/zh-cn/{}', 
+        'archwki': 'https://wiki.archlinux.org/?search={}',
         'reddit': 'https://www.reddit.com/r/{}', 
-        'wiki': 'https://en.wikipedia.org/wiki/{}', 
-        'yt': 'https://www.youtube.com/results?search_query={}' }
+        'youtube': 'https://www.youtube.com/results?search_query={}' 
+        }
 
 # Zoom
 config.set("zoom.default", "140%")
@@ -173,3 +178,6 @@ config.bind(',dr', 'config-cycle content.user_stylesheets ~/.config/qutebrowser/
 config.bind(',gr', 'config-cycle content.user_stylesheets ~/.config/qutebrowser/solarized-everything-css/css/gruvbox/gruvbox-all-sites.css ""')
 config.bind(',sd', 'config-cycle content.user_stylesheets ~/.config/qutebrowser/solarized-everything-css/css/solarized-dark/solarized-dark-all-sites.css ""')
 config.bind(',sl', 'config-cycle content.user_stylesheets ~/.config/qutebrowser/solarized-everything-css/css/solarized-light/solarized-light-all-sites.css ""')
+
+
+

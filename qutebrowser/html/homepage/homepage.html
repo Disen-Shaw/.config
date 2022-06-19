@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>Home</title>
+  <link rel="stylesheet" href="./homepage.css">
+  <link rel="stylesheet" href="../../solarized-everything-css/css//apprentice/apprentice-all-sites.css">
+  <link href="favicon.png" rel="shortcut icon" type="image/x-icon" />
+</head>
+
+<body>
+  <div id="search">
+    <input id="search-field" type="text" name="search-field" />
+  </div>
+  <div class="container">
+    <div id="clock"></div>
+    <div class="weather-container">
+      <div class="row">
+        <!-- div id="weather-description" class="inline" -->
+        <!-- /div -->
+        <div class="inline">Being better every day</div>
+        <!--div id="temp" class="inline" -->
+        <!-- /div -->
+      </div>
+    </div>
+    <div class="bookmark-container">
+      <div class="bookmark-set">
+        <div class="bookmark-title">Master</div>
+        <div class="bookmark-inner-container">
+          <a class="bookmark" href="http://shaodisheng.xyz" target="_blank">邵笛笙的个人站</a>
+          <a class="bookmark" href="https://console.cloud.tencent.com/lighthouse/instance/index"
+            target="_blank">腾讯云控制台</a>
+          <a class="bookmark" href="https://console.cloud.tencent.com/domain" target="_blank">域名管理平台</a>
+        </div>
+      </div>
+      <div class="bookmark-set">
+        <div class="bookmark-title">Mails</div>
+        <div class="bookmark-inner-container">
+
+          <a class="bookmark" href="https://mail.google.com/mail/u/0/" target="_blank">Gmail</a>
+          <a class="bookmark" href="https://mail.qq.com/" target="_blank">Foxmail</a>
+          <a class="bookmark" href="https://mail.163.com" target="_blank">网易邮箱</a>
+        </div>
+      </div>
+      <div class="bookmark-set">
+        <div class="bookmark-title">Videos</div>
+        <div class="bookmark-inner-container">
+          <a class="bookmark" href="https://www.bilibili.com/" target="_blank">Bilibili</a>
+          <a class="bookmark" href="https://www.youtube.com/" target="_blank">Youtube</a>
+        </div>
+      </div>
+      <div class="bookmark-set">
+        <div class="bookmark-title">Community</div>
+        <div class="bookmark-inner-container">
+          <a class="bookmark" href="https://github.com" target="_blank">GitHub</a>
+          <a class="bookmark" href="https://gitee.com" target="_blank">Gitee</a>
+          <a class="bookmark" href="https://www.zhihu.com/people/qi-feng-98-79" target="_blank">Zhihu</a>
+          <a class="bookmark" href="https://blog.csdn.net/weixin_46667572?spm=1000.2115.3001.5343"
+            target="_blank">CSDN</a>
+          <a class="bookmark" href="https://www.cnblogs.com/" target="_blank">Cnblogs</a>
+        </div>
+      </div>
+      <div class="bookmark-set">
+        <div class="bookmark-title">Tools</div>
+        <div class="bookmark-inner-container">
+          <a class="bookmark" href="https://www.c-cloud.xyz/user" target="_blank">CordCloud</a>
+          <a class="bookmark" href="http://127.0.0.1:2017/" target="_blank">V2Raya</a>
+          <a class="bookmark" href="https://www.szlcsc.com/" target="_blank">立创商城</a>
+          <a class="bookmark" href="https://u.lceda.cn/explore/" target="_blank">立创开源</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Search on enter key event
+    document.getElementById("search-field").addEventListener("keydown", event => {
+      if (event.keyCode === 13) {
+        var val = document.getElementById("search-field").value;
+        window.open("https://google.com/search?q=" + val);
+      }
+    });
+    // Get current time and format
+    getTime = () => {
+      let date = new Date(),
+        min = date.getMinutes(),
+        sec = date.getSeconds(),
+        hour = date.getHours();
+
+      return "" +
+        (hour < 10 ? ("0" + hour) : hour) + ":" +
+        (min < 10 ? ("0" + min) : min) + ":" +
+        (sec < 10 ? ("0" + sec) : sec);
+    }
+
+    window.onload = () => {
+      let xhr = new XMLHttpRequest();
+      // Request to open weather map
+      xhr.open('GET', 'http://api.openweathermap.org/data/2.5/weather?id=4737316&units=imperial&appid=e5b292ae2f9dae5f29e11499c2d82ece');
+      xhr.onload = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            let json = JSON.parse(xhr.responseText);
+            console.log(json);
+            document.getElementById("temp").innerHTML = json.main.temp.toFixed(0) + " F";
+            document.getElementById("weather-description").innerHTML = json.weather[0].description;
+          } else {
+            console.log('error msg: ' + xhr.status);
+          }
+        }
+      }
+      xhr.send();
+      // Set up the clock
+      document.getElementById("clock").innerHTML = getTime();
+      // Set clock interval to tick clock
+      setInterval(() => {
+        document.getElementById("clock").innerHTML = getTime();
+      }, 100);
+    }
+
+    document.addEventListener("keydown", event => {
+      if (event.keyCode == 32) {          // Spacebar code to open search
+        document.getElementById('search').style.display = 'flex';
+        document.getElementById('search-field').focus();
+      } else if (event.keyCode == 27) {   // Esc to close search
+        document.getElementById('search-field').value = '';
+        document.getElementById('search-field').blur();
+        document.getElementById('search').style.display = 'none';
+      }
+    });
+  </script>
+</body>
+
+</html>
