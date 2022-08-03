@@ -14,7 +14,7 @@ local options_g = {
   -- 路径配置
   python_host_prog = '/usr/bin/python2',
   python3_host_prog = '/usr/bin/python3',
-  ruby_host_prog = '~/.local/share/gem/ruby/3.0.0/bin/neovim-ruby-host',
+  ruby_host_prog = '/use/bin/neovim-ruby-host',
   node_host_prog = '/usr/bin/neovim-node-host',
 }
 

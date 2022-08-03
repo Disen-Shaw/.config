@@ -9,7 +9,8 @@ local servers = { "jsonls","cmake",
                   "sumneko_lua", "pyright", "bashls",
                   "ccls","jdtls",
                   "html", "cssls",
-                  "prosemd_lsp", "texlab"
+                  "prosemd_lsp",
+                  "svlangserver"
                 }
 
 lsp_installer.setup {

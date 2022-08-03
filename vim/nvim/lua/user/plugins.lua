@@ -34,9 +34,6 @@ return require('packer').startup(function()
   -- Markdown
   use { 'iamcco/markdown-preview.nvim', 'dhruvasagar/vim-table-mode' }
 
-  -- LaTeX
-  use { 'lervag/vimtex' }
-
   -- cmp
   use { 'hrsh7th/nvim-cmp' }
   use { 'hrsh7th/cmp-nvim-lua' }

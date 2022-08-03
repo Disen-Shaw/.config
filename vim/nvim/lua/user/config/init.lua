@@ -22,9 +22,6 @@ local function plugins_config()
   require('user.config.markdown-preview')
   require('user.config.vim-table-mode')
 
-  -- LaTeX
-  require('user.config.vimtex')
-
   -- Debug
   require('user.config.nvim-gdb')
 
