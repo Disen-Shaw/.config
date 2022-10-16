@@ -1,0 +1,2 @@
+utime(/home/master/.local/share/nvim/lsp_servers/jdtls.tmp/archive.tar.gz): No such file or directory
+2022-10-16 23:19:15 URL:https://download.eclipse.org/jdtls/snapshots/jdt-language-server-1.17.0-202210130525.tar.gz [41460386/41460386] -> "/home/master/.local/share/nvim/lsp_servers/jdtls.tmp/archive.tar.gz" [1]
