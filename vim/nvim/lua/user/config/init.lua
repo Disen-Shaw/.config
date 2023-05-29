@@ -14,7 +14,6 @@ local function plugins_config()
 
   -- Code
   require('user.config.comment')
-  require('user.config.autoformat')
   require('user.config.doxygentoolkit')
   require('user.config.cmp')
 

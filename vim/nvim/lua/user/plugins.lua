@@ -36,6 +36,7 @@ return require('packer').startup(function()
 
   -- cmp
   use { 'hrsh7th/nvim-cmp' }
+  use { 'hrsh7th/cmp-nvim-lsp' }
   use { 'hrsh7th/cmp-nvim-lua' }
   use { 'hrsh7th/cmp-buffer' }
   use { 'hrsh7th/cmp-path' }
@@ -48,8 +49,10 @@ return require('packer').startup(function()
 
   -- LSP
   use { 'neovim/nvim-lspconfig' }
-  use { 'williamboman/nvim-lsp-installer' }
-  use { 'hrsh7th/cmp-nvim-lsp' }
+  use { "williamboman/mason.nvim" }   
+  use { "williamboman/mason-lspconfig.nvim" }
+  use { "jose-elias-alvarez/null-ls.nvim" }   
+  use { "RRethy/vim-illuminate" }
 
   -- Debug
   use { 'sakhnik/nvim-gdb' }

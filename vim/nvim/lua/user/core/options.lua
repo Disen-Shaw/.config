@@ -14,13 +14,13 @@ local options_g = {
   -- 路径配置
   python_host_prog = '/usr/bin/python2',
   python3_host_prog = '/usr/bin/python3',
-  ruby_host_prog = '/use/bin/neovim-ruby-host',
-  node_host_prog = '/usr/bin/neovim-node-host',
+  -- ruby_host_prog = '/use/bin/neovim-ruby-host',
+  -- node_host_prog = '/usr/bin/neovim-node-host',
 }
 
 local options_opt = {
-  shiftwidth = 2,
-  softtabstop = 2,                        -- tab为2
+  shiftwidth = 4,
+  softtabstop = 4,                        -- tab为2
   expandtab = true,                       -- 把tab换成tab
   mouse = "",                             -- 禁用鼠标
   number = true,                          -- 显示行号
