@@ -1,9 +1,7 @@
-[user]
-	name = Disen Shaw
-	email = shaodisheng1314@gmail.com
-[init]
-	defaultBranch = main
-[credential]
-	helper = store
 [core]
-	editor = nvim
+    editor = nvim
+
+[user]
+    name = Disen Shaw
+    email = DisenShaw@gmail.com
+
