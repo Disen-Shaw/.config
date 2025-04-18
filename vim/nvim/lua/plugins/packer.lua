@@ -38,7 +38,12 @@ require('pckr').add
     'HiPhish/rainbow-delimiters.nvim',
     -- terminal
     'akinsho/toggleterm.nvim',
-    
+
+    -- Telescope
+    'nvim-lua/plenary.nvim',
+    'nvim-telescope/telescope.nvim',
+    'BurntSushi/ripgrep',
+
     -- cmp
     'hrsh7th/nvim-cmp',
     'hrsh7th/cmp-nvim-lua',
@@ -47,12 +52,13 @@ require('pckr').add
     'hrsh7th/cmp-cmdline',
     'hrsh7th/cmp-nvim-lsp',
     'L3MON4D3/LuaSnip',
-    
+
     -- lsp
     'mfussenegger/nvim-lint',
     'williamboman/mason.nvim',
     'williamboman/mason-lspconfig.nvim',
     'neovim/nvim-lspconfig',
+
 }
 
 

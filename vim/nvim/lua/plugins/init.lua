@@ -7,6 +7,8 @@ local function plugins_init()
     require('plugins.rainbow-delimiters')
     require('plugins.theme')
 
+    require('plugins.telescope')
+
     require('plugins.toggleterm')
     require('plugins.cmp')
 
