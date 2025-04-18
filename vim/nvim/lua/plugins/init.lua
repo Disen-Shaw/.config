@@ -8,6 +8,7 @@ local function plugins_init()
     require('plugins.theme')
 
     require('plugins.telescope')
+    require('plugins.tagbar')
 
     require('plugins.toggleterm')
     require('plugins.cmp')

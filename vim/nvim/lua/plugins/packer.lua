@@ -23,28 +23,32 @@ bootstrap_pckr()
 
 require('pckr').add
 {
-    -- Colorscheme
-    'folke/tokyonight.nvim',
-    'Mofiqul/vscode.nvim',
-    'sainnhe/gruvbox-material',
-    -- Icon 
-    'nvim-tree/nvim-web-devicons',
-    -- File explorer
-    'nvim-tree/nvim-tree.lua',
-    'nvim-lualine/lualine.nvim',
-    -- Treesitter
-    'nvim-treesitter/nvim-treesitter',
-    -- Rainbow
-    'HiPhish/rainbow-delimiters.nvim',
-    -- terminal
-    'akinsho/toggleterm.nvim',
+    --
+    -- Window beautification
+    --
+    'folke/tokyonight.nvim',            -- Tokyonight color scheme
+    'Mofiqul/vscode.nvim',              -- vscode color scheme
+    'sainnhe/gruvbox-material',         -- gruvbox color scheme
+    'nvim-lualine/lualine.nvim',        -- lualine 
+    'nvim-tree/nvim-web-devicons',      -- devicons
+    'nvim-treesitter/nvim-treesitter',  -- highlight for codes
+    'HiPhish/rainbow-delimiters.nvim',  -- Rainbow
 
+    -- 
+    -- Useful tools
+    --
+    'nvim-tree/nvim-tree.lua',          -- Nvim-tree (file explorer)
+    'akinsho/toggleterm.nvim',          -- Custom Terminal
     -- Telescope
     'nvim-lua/plenary.nvim',
     'nvim-telescope/telescope.nvim',
     'BurntSushi/ripgrep',
+    -- tagbar
+    'preservim/tagbar',
 
+    --
     -- cmp
+    --
     'hrsh7th/nvim-cmp',
     'hrsh7th/cmp-nvim-lua',
     'hrsh7th/cmp-buffer',
@@ -53,12 +57,13 @@ require('pckr').add
     'hrsh7th/cmp-nvim-lsp',
     'L3MON4D3/LuaSnip',
 
-    -- lsp
+    --
+    -- Lsp
+    --
     'mfussenegger/nvim-lint',
     'williamboman/mason.nvim',
     'williamboman/mason-lspconfig.nvim',
     'neovim/nvim-lspconfig',
-
 }
 
 
