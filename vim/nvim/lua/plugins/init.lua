@@ -1,5 +1,7 @@
 
 local function plugins_init()
+
+    -- Window beautification
     require('plugins.packer')
     require('plugins.nvim-tree')
     require('plugins.lualine')
@@ -7,13 +9,19 @@ local function plugins_init()
     require('plugins.rainbow-delimiters')
     require('plugins.theme')
 
+    -- useful tools
     require('plugins.telescope')
     require('plugins.tagbar')
-
     require('plugins.toggleterm')
+
+    -- cmp
     require('plugins.cmp')
 
+    -- lsp
     require('plugins.lsp')
+
+    -- Language
+    require('plugins.markdown-preview')
 end
 
 plugins_init()

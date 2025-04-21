@@ -64,6 +64,9 @@ require('pckr').add
     'williamboman/mason.nvim',
     'williamboman/mason-lspconfig.nvim',
     'neovim/nvim-lspconfig',
+
+    -- Language
+    'iamcco/markdown-preview.nvim',
 }
 
 
