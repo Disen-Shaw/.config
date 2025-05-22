@@ -1,7 +1,7 @@
 
-local function config()
-	require('core')
-	require('plugins')
+local function neovim_config()
+    require('core')
+    require('plugins')
 end
 
-config()
+neovim_config()
