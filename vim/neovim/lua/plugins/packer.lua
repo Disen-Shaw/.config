@@ -27,17 +27,19 @@ require('pckr').add
     'folke/tokyonight.nvim',
     'Mofiqul/vscode.nvim',
     'sainnhe/gruvbox-material',
-    -- Icon 
     'nvim-tree/nvim-web-devicons',
-    -- File explorer
     'nvim-tree/nvim-tree.lua',
     'nvim-lualine/lualine.nvim',
     -- Treesitter
     'nvim-treesitter/nvim-treesitter',
-    -- Rainbow
     'HiPhish/rainbow-delimiters.nvim',
-    -- terminal
     'akinsho/toggleterm.nvim',
+
+    -- lsp
+    'neovim/nvim-lspconfig',
+    'williamboman/mason.nvim',
+    'williamboman/mason-lspconfig.nvim',
+    'mfussenegger/nvim-lint',
 
     -- cmp
     'hrsh7th/nvim-cmp',
@@ -47,13 +49,6 @@ require('pckr').add
     'hrsh7th/cmp-cmdline',
     'hrsh7th/cmp-path',
     'L3MON4D3/LuaSnip',
-
-    -- lsp
-    'williamboman/mason.nvim',
-    'williamboman/mason-lspconfig.nvim',
-    'neovim/nvim-lspconfig',
-    'mfussenegger/nvim-lint',
-    'mhartington/formatter.nvim',
 }
 
 
