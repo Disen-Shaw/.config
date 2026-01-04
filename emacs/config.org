@@ -1,0 +1,268 @@
+
+#+TITLE: My Emacs Configuration
+#+AUTHOR: Disen-Shaw
+#+STARTUP: content
+
+* Basic UI Configuration
+
+This is a UI interface configuration, including basic interface settings and font settings.
+
+#+begin_src emacs-lisp
+
+  ;; disable auto-backup
+  (setq make-backup-files nil)
+  (setq auto-save-default nil)
+
+  ;; basic ui settings
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (setq display-line-numbers-type 't)
+  (global-display-line-numbers-mode t)
+  (setq inhibit-startup-screen t)
+
+  ;; font settings
+  (defun emacs_basic_settings/setup-fonts ()
+    (set-face-attribute 'default nil :font "Maple Mono NF CN-12")
+    (set-fontset-font t 'han (font-spec :family "Maple Mono NF CN-12"))
+    (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji"))
+    (setq-default line-spacing 0.2)
+    (setq org-src-fontify-natively t))
+  (when (display-graphic-p)
+    (emacs_basic_settings/setup-fonts))
+  (add-hook 'after-make-frame-functions
+  	  (lambda (frame)
+  	    (with-selected-frame frame
+  	      (when (display-graphic-p frame)
+  		(emacs_basic_settings/setup-fonts)))))
+#+end_src
+
+* Elpaca
+
+I use elpaca package manager as my default package manager.
+
+#+begin_src emacs-lisp
+  (defvar elpaca-installer-version 0.11)
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                                :ref nil :depth 1 :inherit ignore
+                                :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                                :build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+         (build (expand-file-name "elpaca/" elpaca-builds-directory))
+         (order (cdr elpaca-order))
+         (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (<= emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+          (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                    ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                    ,@(when-let* ((depth (plist-get order :depth)))
+                                                        (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                    ,(plist-get order :repo) ,repo))))
+                    ((zerop (call-process "git" nil buffer t "checkout"
+                                          (or (plist-get order :ref) "--"))))
+                    (emacs (concat invocation-directory invocation-name))
+                    ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                          "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                    ((require 'elpaca))
+                    ((elpaca-generate-autoloads "elpaca" repo)))
+              (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+            (error "%s" (with-current-buffer buffer (buffer-string))))
+        ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+  (elpaca elpaca-use-package
+    ;; Enable use-package :ensure support for Elpaca.
+    (elpaca-use-package-mode))
+#+end_src
+
+* UI
+** Color Scheme
+
+I prefer tokyo-night color scheme.
+
+#+begin_src emacs-lisp
+  (elpaca
+      '(tokyonight-themes
+        :host github
+        :repo "xuchengpeng/tokyonight-themes")
+    (use-package tokyonight-themes
+      :config
+      (load-theme 'tokyonight-night :no-confirm)))
+#+end_src
+
+* Evil Mode 
+
+I use vim/neovim before emacs, not Emacs, so evil-mode feel very netural to me.
+
+** Basic Evil Mode Settings
+
+#+begin_src emacs-lisp
+  (setq evil-want-keybinding nil)
+  ;; Keymap plugin
+  (use-package key-chord
+    :ensure t
+    :config (key-chord-mode 1))
+
+  (use-package evil
+    :ensure t
+    :demand t
+    :config
+    :after key-chord
+    :config
+    (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+    (key-chord-define evil-insert-state-map "kj" 'evil-normal-state)
+    (evil-mode 1))
+
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :config (evil-collection-init))
+#+end_src
+
+** VTERM
+
+use vterm as default internal terminal.
+
+#+begin_src emacs-lisp
+  (use-package vterm
+    :ensure t
+    :after evil
+    :config
+    (evil-set-initial-state 'vterm-mode 'insert)
+    (add-hook 'vterm-mode-hook
+              (lambda ()
+                (evil-local-set-key 'insert (kbd "C-c") #'vterm--self-insert)
+                (evil-local-set-key 'normal (kbd "C-c") #'vterm--self-insert)))
+    (setq vterm-always-compile-mode t))
+#+end_src
+
+** Dirvish
+
+a ranger like file manager
+
+#+begin_src emacs-lisp
+  (use-package dirvish
+    :ensure t
+    :config
+    (dirvish-override-dired-mode)
+    ;; Ranger/Yazi style keybindings
+    (general-define-key
+     :states '(normal)
+     :keymaps 'dirvish-mode-map
+     "h" 'dired-up-directory
+     "l" 'dired-find-file
+     "q" 'dirvish-quit
+     "r" 'dired-do-rename
+     "d" 'dired-do-delete
+     "/" 'dirvish-fd
+     "yy" 'dired-do-copy
+     "pp" 'dired-do-paste
+     " " 'dirvish-toggle-preview))
+#+end_src
+
+** Treemacs
+
+A NERTtree like file explorer.
+
+#+begin_src emacs-lisp
+  (use-package treemacs
+    :ensure t
+    :defer t)
+  (use-package treemacs-evil
+    :ensure t
+    :after (treemacs evil))
+  (use-package treemacs-projectile
+    :ensure t
+    :after (treemacs projectile))
+#+end_src
+
+** General
+
+*** Whitch-key
+
+which-key settings
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-mode)
+    (setq which-key-idle-delay 0.2))
+#+end_src
+
+*** General
+
+general to define some keybind.
+
+#+begin_src emacs-lisp
+  (use-package general
+    :ensure t
+    :config
+    (general-create-definer leader-key
+      :states '(normal visual)
+      :keymaps 'override
+      :prefix "SPC")
+
+    ;; basic vim keymap
+    (general-define-key
+     :states '(normal visual)
+     "J"
+     (lambda () (interactive)
+       (evil-next-line 5)
+       (when (evil-visual-state-p)
+         (evil-visual-restore)
+         (evil-next-line 5)))
+     "K"
+     (lambda () (interactive)
+       (evil-previous-line 5)
+       (when (evil-visual-state-p)
+         (evil-visual-restore)
+         (evil-previous-line 5)))
+     "H"
+     (lambda () (interactive)
+       (evil-beginning-of-line)
+       (when (evil-visual-state-p)
+         (evil-visual-restore)
+         (evil-beginning-of-line)))
+     "L"
+     (lambda () (interactive)
+       (evil-end-of-line)
+       (when (evil-visual-state-p)
+         (evil-visual-restore)
+         (evil-end-of-line)))
+     "S"
+     (lambda () (interactive)
+       (save-buffer)
+       (when (evil-visual-state-p)
+         (evil-visual-restore)))
+     )
+    
+    ;; window switch
+    (general-define-key
+     :states '(normal)
+     :keymaps 'override
+     :prefix "<tab>"
+     "h" 'evil-window-left
+     "l" 'evil-window-right
+     "k" 'evil-window-up
+     "j" 'evil-window-down)
+
+    (leader-key
+      "t" '(:ignore t :which-key "terminal")
+      "tt" '(treemacs :which-key "NERDtree like file explorer")
+      "tv" '(vterm :which-key "vterm bottom")
+      "td" '(dirvish :which-key "dirvish file manager"))
+    )
+#+end_src
+
+
