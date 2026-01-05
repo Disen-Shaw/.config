@@ -13,6 +13,9 @@ This is a UI interface configuration, including basic interface settings and fon
   (setq make-backup-files nil)
   (setq auto-save-default nil)
 
+  ;; auto kill all term process
+  (setq confirm-kill-processes nil)
+
   ;; basic ui settings
   (menu-bar-mode -1)
   (tool-bar-mode -1)
@@ -86,7 +89,7 @@ I use elpaca package manager as my default package manager.
 #+end_src
 
 * UI
-** Color Scheme
+** color scheme
 
 I prefer tokyo-night color scheme.
 
@@ -100,11 +103,31 @@ I prefer tokyo-night color scheme.
       (load-theme 'tokyonight-night :no-confirm)))
 #+end_src
 
+** doom-modeline
+
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :ensure t
+    :init
+    (doom-modeline-mode 1)
+    :custom
+    (doom-modeline-height 25)          ;; 状态栏高度
+    (doom-modeline-bar-width 3)        ;; 左侧彩条宽度
+    (doom-modeline-buffer-file-name-style 'truncate-upto-project)
+    (doom-modeline-icon t)             ;; 显示图标
+    (doom-modeline-major-mode-icon t)
+    (doom-modeline-major-mode-color-icon t)
+    (doom-modeline-lsp t)              ;; 显示 LSP 状态
+    (doom-modeline-github nil)
+    (doom-modeline-mu4e nil)
+    (doom-modeline-irc nil))
+#+end_src
+
 * Evil Mode 
 
 I use vim/neovim before emacs, not Emacs, so evil-mode feel very netural to me.
 
-** Basic Evil Mode Settings
+** basic evil-mode settings
 
 #+begin_src emacs-lisp
   (setq evil-want-keybinding nil)
@@ -129,65 +152,82 @@ I use vim/neovim before emacs, not Emacs, so evil-mode feel very netural to me.
     :config (evil-collection-init))
 #+end_src
 
-** VTERM
-
-use vterm as default internal terminal.
-
+** dashboard
 #+begin_src emacs-lisp
-  (use-package vterm
-    :ensure t
-    :after evil
-    :config
-    (evil-set-initial-state 'vterm-mode 'insert)
-    (add-hook 'vterm-mode-hook
-              (lambda ()
-                (evil-local-set-key 'insert (kbd "C-c") #'vterm--self-insert)
-                (evil-local-set-key 'normal (kbd "C-c") #'vterm--self-insert)))
-    (setq vterm-always-compile-mode t))
-#+end_src
-
-** Dirvish
-
-a ranger like file manager
-
-#+begin_src emacs-lisp
-  (use-package dirvish
+  (use-package dashboard
     :ensure t
     :config
-    (dirvish-override-dired-mode)
-    ;; Ranger/Yazi style keybindings
-    (general-define-key
-     :states '(normal)
-     :keymaps 'dirvish-mode-map
-     "h" 'dired-up-directory
-     "l" 'dired-find-file
-     "q" 'dirvish-quit
-     "r" 'dired-do-rename
-     "d" 'dired-do-delete
-     "/" 'dirvish-fd
-     "yy" 'dired-do-copy
-     "pp" 'dired-do-paste
-     " " 'dirvish-toggle-preview))
+    (dashboard-setup-startup-hook)
+    ;; display logo
+    (setq dashboard-startup-banner 'official)
+    ;; display information
+    (setq dashboard-items '((recents . 5)
+  			  (projects . 5)
+  			  (bookmarks . 5)))
+    ;; display tips 
+    (setq dashboard-banner-logo-title "hello world")
+    ;; random
+    (setq dashboard-center-content t)
+    (setq dashboard-show-shortcuts nil))
+#+end_src
+** terminal
+
+#+begin_src emacs-lisp
+  ;; eat terminal
+  (use-package eat
+    :ensure t)
+
+  ;; popper
+  (use-package popper
+    :ensure t
+    :init
+    (setq popper-reference-buffers
+  	'("\\*eat\\*" "\\*shell\\*" "\\*eshell\\*"))
+    (popper-mode 1)
+    (popper-echo-mode 1))
 #+end_src
 
-** Treemacs
+** ranger
+
+ranger file manager.
+
+#+begin_src emacs-lisp
+    (use-package ranger
+      :ensure t
+      :config
+      (setq ranger-show-hidden t)
+      (setq ranger-cleanup-on-disable t)
+      (setq ranger-preview-file t)
+      (setq ranger-override-dired t)
+      (setq ranger-open-file-on-start t)
+      (setq ranger-parent-depth 1)
+      (setq ranger-width-preview 0.55)
+      (setq ranger-max-preview-size 5) ;; 5MB
+      (setq ranger-parent-depth 1)
+      (setq ranger-cleanup-on-disable t)
+  )
+#+end_src
+
+** neotree
 
 A NERTtree like file explorer.
 
 #+begin_src emacs-lisp
-  (use-package treemacs
+  (use-package all-the-icons
+    :ensure t)
+  (use-package nerd-icons
+    :ensure t)
+  (use-package neotree
     :ensure t
-    :defer t)
-  (use-package treemacs-evil
-    :ensure t
-    :after (treemacs evil))
-  (use-package treemacs-projectile
-    :ensure t
-    :after (treemacs projectile))
+    :config
+    (setq neo-theme 'nerd-icons) 
+    (setq neo-smart-open t)
+    (setq neo-window-fixed-size nil)
+    (setq neo-show-hidden-files t)
+    (setq neo-autorefresh nil))
 #+end_src
 
-** General
-
+** keymap
 *** Whitch-key
 
 which-key settings
@@ -200,7 +240,7 @@ which-key settings
     (setq which-key-idle-delay 0.2))
 #+end_src
 
-*** General
+*** general-keymap
 
 general to define some keybind.
 
@@ -259,10 +299,89 @@ general to define some keybind.
 
     (leader-key
       "t" '(:ignore t :which-key "terminal")
-      "tt" '(treemacs :which-key "NERDtree like file explorer")
-      "tv" '(vterm :which-key "vterm bottom")
-      "td" '(dirvish :which-key "dirvish file manager"))
+      "tt" '(neotree-toggle :which-key "NERDtree like file explorer")
+      "tv" '(popper-toggle :which-key "terminal togglle")
+      "td" '(ranger :which-key "ranger file manager"))
     )
 #+end_src
+* completion
 
+** frontend
 
+*** corfu
+
+I use [[https://github.com/minad/corfu][Corfu]] as completion frontend.
+
+#+begin_src emacs-lisp
+  (use-package corfu
+    :ensure t
+    :init
+    (global-corfu-mode)
+    :custom
+    (corfu-auto t)
+    (corfu-auto-delay 0.1)
+    (corfu-auto-prefix 1)          ;; 输入 1 个字符就触发
+    (corfu-quit-no-match 'separator)
+    (corfu-cycle t)                ;; TAB 循环候选项
+    (corfu-preselect 'prompt))
+#+end_src
+
+*** kind-icon
+
+#+begin_src emacs-lisp
+  (use-package kind-icon
+    :ensure t
+    :after corfu
+    :custom
+    (kind-icon-default-face 'corfu-default) ; 让图标背景跟随主题
+    :config
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+#+end_src
+
+*** vertico
+
+#+begin_src emacs-lisp
+  (use-package vertico
+    :ensure t
+    :init (vertico-mode))
+#+end_src
+
+*** orderless
+
+#+begin_src emacs-lisp
+  (use-package orderless
+    :ensure t
+    :custom (completion-styles '(orderless))
+    (completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+
+** Backend
+
+*** cape
+
+I use [[https://github.com/minad/cape][Cape]] as completion backend.
+
+#+begin_src emacs-lisp
+  (use-package cape
+    :ensure t
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-keyword))
+  ;; tab configuration
+  (with-eval-after-load 'corfu
+    (define-key corfu-map (kbd "TAB") #'corfu-next)
+    (define-key corfu-map (kbd "<tab>") #'corfu-next)
+    (define-key corfu-map (kbd "<backtab>") #'corfu-previous))
+#+end_src
+
+*** lsp
+
+#+begin_src emacs-lisp
+  (use-package flymake
+    :ensure nil)
+
+  (use-package eglot
+    :ensure nil
+    :hook ((c-mode c++-mode) . eglot-ensure))
+#+end_src
