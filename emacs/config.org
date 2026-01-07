@@ -1,49 +1,50 @@
 
-#+TITLE: My Emacs Configuration
+#+TITLE: My GNU EMACS CONFIGURATION
 #+AUTHOR: Disen-Shaw
 #+STARTUP: content
 
-* Basic UI Configuration
+* BASIC UI CONFIGURATION
 
-This is a UI interface configuration, including basic interface settings and font settings.
+** BASIC UI
 
 #+begin_src emacs-lisp
-
-  ;; disable auto-backup
+  ;; disable auto-backup ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (setq make-backup-files nil)
   (setq auto-save-default nil)
-
-  ;; auto kill all term process
-  (setq confirm-kill-processes nil)
-
-  ;; basic ui settings
+  ;; disable menu bar
   (menu-bar-mode -1)
+  ;; disable tool bar
   (tool-bar-mode -1)
+  ;; disable tool bar
   (scroll-bar-mode -1)
+  ;; display line numbers
   (setq display-line-numbers-type 't)
   (global-display-line-numbers-mode t)
-  (setq inhibit-startup-screen t)
+  ;; disable startup buffer
+  (setq inhibit-startup-screen t)        
+#+end_src
 
-  ;; font settings
+** FONTS
+
+#+begin_src emacs-lisp
+  ;; I use Maple Mono NF CN
   (defun emacs_basic_settings/setup-fonts ()
     (set-face-attribute 'default nil :font "Maple Mono NF CN-12")
     (set-fontset-font t 'han (font-spec :family "Maple Mono NF CN-12"))
     (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji"))
     (setq-default line-spacing 0.2)
     (setq org-src-fontify-natively t))
+  ;; for emacs --daemon server mode 
   (when (display-graphic-p)
     (emacs_basic_settings/setup-fonts))
   (add-hook 'after-make-frame-functions
   	  (lambda (frame)
   	    (with-selected-frame frame
   	      (when (display-graphic-p frame)
-  		(emacs_basic_settings/setup-fonts)))))
+  		(emacs_basic_settings/setup-fonts)))))  
 #+end_src
 
-* Elpaca
-
-I use elpaca package manager as my default package manager.
-
+* ELPACA PACKAGE MANAGER
 #+begin_src emacs-lisp
   (defvar elpaca-installer-version 0.11)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -86,137 +87,42 @@ I use elpaca package manager as my default package manager.
   (elpaca elpaca-use-package
     ;; Enable use-package :ensure support for Elpaca.
     (elpaca-use-package-mode))
+
 #+end_src
 
-* UI
-** color scheme
+* PACKAGE CONFIGURATION
 
-I prefer tokyo-night color scheme.
+** RESOURCE PACKAGE
 
-#+begin_src emacs-lisp
-  (elpaca
-      '(tokyonight-themes
-        :host github
-        :repo "xuchengpeng/tokyonight-themes")
-    (use-package tokyonight-themes
-      :config
-      (load-theme 'tokyonight-night :no-confirm)))
-#+end_src
-
-** doom-modeline
+*** UI RESOURCE
 
 #+begin_src emacs-lisp
-  (use-package doom-modeline
-    :ensure t
-    :init
-    (doom-modeline-mode 1)
-    :custom
-    (doom-modeline-height 25)          ;; 状态栏高度
-    (doom-modeline-bar-width 3)        ;; 左侧彩条宽度
-    (doom-modeline-buffer-file-name-style 'truncate-upto-project)
-    (doom-modeline-icon t)             ;; 显示图标
-    (doom-modeline-major-mode-icon t)
-    (doom-modeline-major-mode-color-icon t)
-    (doom-modeline-lsp t)              ;; 显示 LSP 状态
-    (doom-modeline-github nil)
-    (doom-modeline-mu4e nil)
-    (doom-modeline-irc nil))
-#+end_src
-
-* Evil Mode 
-
-I use vim/neovim before emacs, not Emacs, so evil-mode feel very netural to me.
-
-** basic evil-mode settings
-
-#+begin_src emacs-lisp
-  (setq evil-want-keybinding nil)
-  ;; Keymap plugin
-  (use-package key-chord
-    :ensure t
-    :config (key-chord-mode 1))
-
-  (use-package evil
-    :ensure t
-    :demand t
-    :config
-    :after key-chord
-    :config
-    (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-    (key-chord-define evil-insert-state-map "kj" 'evil-normal-state)
-    (evil-mode 1))
-
-  (use-package evil-collection
-    :ensure t
-    :after evil
-    :config (evil-collection-init))
-#+end_src
-
-** dashboard
-#+begin_src emacs-lisp
-  (use-package dashboard
-    :ensure t
-    :config
-    (dashboard-setup-startup-hook)
-    ;; display logo
-    (setq dashboard-startup-banner 'official)
-    ;; display information
-    (setq dashboard-items '((recents . 5)
-  			  (projects . 5)
-  			  (bookmarks . 5)))
-    ;; display tips 
-    (setq dashboard-banner-logo-title "hello world")
-    ;; random
-    (setq dashboard-center-content t)
-    (setq dashboard-show-shortcuts nil))
-#+end_src
-** terminal
-
-#+begin_src emacs-lisp
-  ;; eat terminal
-  (use-package eat
-    :ensure t)
-
-  ;; popper
-  (use-package popper
-    :ensure t
-    :init
-    (setq popper-reference-buffers
-  	'("\\*eat\\*" "\\*shell\\*" "\\*eshell\\*"))
-    (popper-mode 1)
-    (popper-echo-mode 1))
-#+end_src
-
-** ranger
-
-ranger file manager.
-
-#+begin_src emacs-lisp
-    (use-package ranger
-      :ensure t
-      :config
-      (setq ranger-show-hidden t)
-      (setq ranger-cleanup-on-disable t)
-      (setq ranger-preview-file t)
-      (setq ranger-override-dired t)
-      (setq ranger-open-file-on-start t)
-      (setq ranger-parent-depth 1)
-      (setq ranger-width-preview 0.55)
-      (setq ranger-max-preview-size 5) ;; 5MB
-      (setq ranger-parent-depth 1)
-      (setq ranger-cleanup-on-disable t)
-  )
-#+end_src
-
-** neotree
-
-A NERTtree like file explorer.
-
-#+begin_src emacs-lisp
+  ;; icons
   (use-package all-the-icons
-    :ensure t)
+    :ensure t
+    :config
+    (setq all-the-icons-scale-factor 1.4))
+  ;; nerd icons
   (use-package nerd-icons
     :ensure t)
+#+end_src
+
+*** OTHER FUNCTIONAL RESOURCE
+**** which-key
+
+which-key package for keymap description.
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :config
+    (which-key-mode)
+    (setq which-key-idle-delay 0.2))
+#+end_src
+
+**** neotree
+
+#+begin_src emacs-lisp
   (use-package neotree
     :ensure t
     :config
@@ -227,22 +133,91 @@ A NERTtree like file explorer.
     (setq neo-autorefresh nil))
 #+end_src
 
-** keymap
-*** Whitch-key
-
-which-key settings
+**** eshell terminal
 
 #+begin_src emacs-lisp
-  (use-package which-key
-    :ensure t
-    :config
-    (which-key-mode)
-    (setq which-key-idle-delay 0.2))
+  (defun my/toggle-eshell ()
+    "Toggle a bottom eshell window."
+    (interactive)
+    (let* ((buf (get-buffer "*eshell*")))
+      ;; 如果不存在，创建一个
+      (unless buf
+        (save-window-excursion
+  	(eshell))
+        (setq buf (get-buffer "*eshell*")))
+
+      ;; 如果已经显示 → 收回
+      (if (get-buffer-window buf)
+  	(progn
+            (bury-buffer buf)
+            (delete-window (get-buffer-window buf)))
+        ;; 否则弹出并切换过去
+        (let ((win (display-buffer-in-side-window
+                    buf
+                    '((side . bottom)
+                      (slot . 0)
+                      (window-height . 0.3)))))
+  	(select-window win)))))
 #+end_src
 
-*** general-keymap
+**** magit
+#+begin_src emacs-lisp
+  (use-package transient
+    :ensure t)
 
-general to define some keybind.
+  (use-package magit
+    :ensure t)
+#+end_src
+
+** EVIL MODE
+*** EVIL PACKAGES
+
+#+begin_src emacs-lisp
+  (setq evil-want-keybinding nil)
+  (setq evil-want-integration t)
+
+  (use-package evil
+    :ensure t
+    :demand t
+    :config
+
+    ;; my vim keymap ;;;;;;;;;;;;;;;;;;;
+    (evil-define-motion my/evil/move-down-5-lines (count)
+      "Move down 5 lines."
+      :type line
+      (evil-next-line (or count 5)))
+    (evil-define-motion my/evil/move-up-5-lines (count)
+      "Move down 5 lines."
+      :type line
+      (evil-previous-line (or count 5)))
+    (evil-define-motion my/evil/move-beginning-of-line ()
+      "Move to beginning of current line."
+      :type exclusive
+      (evil-first-non-blank))
+    (evil-define-motion my/evil/move-end-of-line ()
+      "Move to end of current line."
+      :type exclusive
+      (evil-end-of-line))
+    (evil-mode 1))
+
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :config
+    (evil-collection-init))
+
+  ;; jk for normal mode
+  (use-package evil-escape
+    :ensure t
+    :after evil
+    :config
+    (evil-escape-mode)
+    (setq evil-escape-key-sequence "jk"
+          evil-escape-delay 0.15))
+
+#+end_src
+
+** GENERAL
 
 #+begin_src emacs-lisp
   (use-package general
@@ -253,41 +228,16 @@ general to define some keybind.
       :keymaps 'override
       :prefix "SPC")
 
-    ;; basic vim keymap
+    ;; my personal vim keymap
     (general-define-key
      :states '(normal visual)
-     "J"
-     (lambda () (interactive)
-       (evil-next-line 5)
-       (when (evil-visual-state-p)
-         (evil-visual-restore)
-         (evil-next-line 5)))
-     "K"
-     (lambda () (interactive)
-       (evil-previous-line 5)
-       (when (evil-visual-state-p)
-         (evil-visual-restore)
-         (evil-previous-line 5)))
-     "H"
-     (lambda () (interactive)
-       (evil-beginning-of-line)
-       (when (evil-visual-state-p)
-         (evil-visual-restore)
-         (evil-beginning-of-line)))
-     "L"
-     (lambda () (interactive)
-       (evil-end-of-line)
-       (when (evil-visual-state-p)
-         (evil-visual-restore)
-         (evil-end-of-line)))
-     "S"
-     (lambda () (interactive)
-       (save-buffer)
-       (when (evil-visual-state-p)
-         (evil-visual-restore)))
-     )
-    
-    ;; window switch
+     "J" #'my/evil/move-down-5-lines
+     "K" #'my/evil/move-up-5-lines
+     "H" #'my/evil/move-beginning-of-line
+     "L" #'my/evil/move-end-of-line
+     "S" #'save-buffer)
+
+    ;; window operation
     (general-define-key
      :states '(normal)
      :keymaps 'override
@@ -295,22 +245,22 @@ general to define some keybind.
      "h" 'evil-window-left
      "l" 'evil-window-right
      "k" 'evil-window-up
-     "j" 'evil-window-down)
+     "j" 'evil-window-down
+     "t" 'neotree-toggle
+     )
 
-    (leader-key
-      "t" '(:ignore t :which-key "terminal")
-      "tt" '(neotree-toggle :which-key "NERDtree like file explorer")
-      "tv" '(popper-toggle :which-key "terminal togglle")
-      "td" '(ranger :which-key "ranger file manager"))
+    ;; eshell
+    (general-define-key
+     :states '(normal insert visual)
+     "C-t" #'my/toggle-eshell
+     )
     )
 #+end_src
-* completion
 
-** frontend
+** COMPLETION
+*** FRONTEND
 
-*** corfu
-
-I use [[https://github.com/minad/corfu][Corfu]] as completion frontend.
+**** crofu
 
 #+begin_src emacs-lisp
   (use-package corfu
@@ -326,7 +276,7 @@ I use [[https://github.com/minad/corfu][Corfu]] as completion frontend.
     (corfu-preselect 'prompt))
 #+end_src
 
-*** kind-icon
+**** kind-icon
 
 #+begin_src emacs-lisp
   (use-package kind-icon
@@ -338,7 +288,7 @@ I use [[https://github.com/minad/corfu][Corfu]] as completion frontend.
     (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+end_src
 
-*** vertico
+**** vertico
 
 #+begin_src emacs-lisp
   (use-package vertico
@@ -346,7 +296,7 @@ I use [[https://github.com/minad/corfu][Corfu]] as completion frontend.
     :init (vertico-mode))
 #+end_src
 
-*** orderless
+**** orderless
 
 #+begin_src emacs-lisp
   (use-package orderless
@@ -355,12 +305,9 @@ I use [[https://github.com/minad/corfu][Corfu]] as completion frontend.
     (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 
-** Backend
+*** BACKEND
 
-*** cape
-
-I use [[https://github.com/minad/cape][Cape]] as completion backend.
-
+**** cape
 #+begin_src emacs-lisp
   (use-package cape
     :ensure t
@@ -375,7 +322,7 @@ I use [[https://github.com/minad/cape][Cape]] as completion backend.
     (define-key corfu-map (kbd "<backtab>") #'corfu-previous))
 #+end_src
 
-*** lsp
+**** LSP
 
 #+begin_src emacs-lisp
   (use-package flymake
@@ -383,5 +330,64 @@ I use [[https://github.com/minad/cape][Cape]] as completion backend.
 
   (use-package eglot
     :ensure nil
+    ;; cc-mode programing
     :hook ((c-mode c++-mode) . eglot-ensure))
 #+end_src
+
+** UI PACKAGES
+
+*** DASHBOARD
+
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook)
+    ;; display logo
+    (setq dashboard-hide-mode-line t)
+    (setq dashboard-startup-banner 'official)
+    ;; display information
+    (setq dashboard-items '((recents . 5)
+  			  (projects . 5)
+  			  (bookmarks . 5)))
+    ;; display tips 
+    (setq dashboard-banner-logo-title "hello world")
+    ;; random
+    (setq dashboard-center-content t)
+    (setq dashboard-show-shortcuts nil))
+#+end_src
+
+*** DOOM-MODELINE
+
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :ensure t
+    :init
+    (doom-modeline-mode 1)
+    :custom
+    (setq-default line-spacing 0.2)
+    (doom-modeline-height 32)          ;; 状态栏高度
+    (doom-modeline-bar-width 4)        ;; 左侧彩条宽度
+    (doom-modeline-buffer-file-name-style 'truncate-upto-project)
+    (doom-modeline-icon t)             ;; 显示图标
+    (doom-modeline-major-mode-icon t)
+    (doom-modeline-major-mode-color-icon t)
+    (doom-modeline-lsp t)              ;; 显示 LSP 状态
+    (doom-modeline-github nil)
+    (doom-modeline-mu4e nil)
+    (doom-modeline-irc nil))
+#+end_src
+
+*** DOOM-THEMES
+
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :ensure t
+    :config
+    (setq doom-themes-visual-bell nil
+  	doom-modeline-enable-visual-bell nil)
+    (load-theme 'doom-dracula t)
+    (doom-themes-org-config))
+#+end_src
+
+
