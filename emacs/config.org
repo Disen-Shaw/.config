@@ -8,13 +8,37 @@
   - [[#basic-ui][BASIC UI]]
   - [[#fonts][FONTS]]
 - [[#elpaca-package-manager][ELPACA PACKAGE MANAGER]]
-- [[#package-configuration][PACKAGE CONFIGURATION]]
-  - [[#ui-packages][UI PACKAGES]]
-  - [[#resource-package][RESOURCE PACKAGE]]
-  - [[#evil-mode][EVIL MODE]]
-  - [[#completion][COMPLETION]]
-  - [[#general][GENERAL]]
-  - [[#document][Document]]
+- [[#ui-packages][UI PACKAGES]]
+  - [[#doom-themes][DOOM-THEMES]]
+  - [[#doom-modeline][DOOM-MODELINE]]
+  - [[#dashboard][DASHBOARD]]
+- [[#resource-packages][RESOURCE PACKAGES]]
+  - [[#diminish][DIMINISH]]
+  - [[#all-the-icons][ALL-THE-ICONS]]
+  - [[#nerd-icons][NERD-ICONS]]
+  - [[#buffer-move][BUFFER-MOVE]]
+- [[#functional-packages][FUNCTIONAL PACKAGES]]
+  - [[#sudo-edit][SUDO-EDIt]]
+  - [[#which-key][WHICH-KEY]]
+  - [[#popon][POPON]]
+  - [[#projectile][PROJECTILE]]
+  - [[#magit][MAGIT]]
+  - [[#neotree][NEOTREE]]
+  - [[#eshell][ESHELL]]
+  - [[#vterm][VTERM]]
+  - [[#dired][DIRED]]
+- [[#evil-mode][EVIL MODE]]
+  - [[#evil-packages][EVIL PACKAGES]]
+- [[#general][GENERAL]]
+- [[#complation][COMPLATION]]
+  - [[#ivy][IVY]]
+  - [[#counsel][COUNSEL]]
+  - [[#company][COMPANY]]
+  - [[#flycheck][FLYCHECK]]
+  - [[#language-support][LANGUAGE-SUPPORT]]
+  - [[#lsp][LSP]]
+- [[#document][DOCUMENT]]
+  - [[#org-mode][ORG-MODE]]
 
 * BASIC UI CONFIGURATION
 
@@ -42,6 +66,9 @@
 
   (setq scroll-margin 10)
   (setq scroll-conservatively 101)
+
+  (add-to-list 'default-frame-alist '(alpha-background . 70)) 
+
 #+end_src
 
 ** FONTS
@@ -49,8 +76,14 @@
 #+begin_src emacs-lisp
   ;; I use Maple Mono NF CN
   (defun emacs_basic_settings/setup-fonts ()
-    (set-face-attribute 'default nil :font "Maple Mono NF CN-12")
-    (set-fontset-font t 'han (font-spec :family "Maple Mono NF CN-12"))
+    (set-face-attribute 'default nil
+  		      :font "JetBrains Mono Nerd Font"
+  		      :height 120
+  		      :weight 'medium)
+    (set-fontset-font t 'han (font-spec
+  			    :family "Maple Mono NF CN"
+  			    :height 120
+  			    :weight 'medium))
     (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji"))
 
     (when (display-graphic-p)
@@ -116,9 +149,8 @@
 
 #+end_src
 
-* PACKAGE CONFIGURATION
-** UI PACKAGES
-*** DOOM-THEMES
+* UI PACKAGES
+** DOOM-THEMES
 
 #+begin_src emacs-lisp
   (use-package doom-themes
@@ -126,11 +158,22 @@
     :config
     (setq doom-themes-visual-bell nil
   	doom-modeline-enable-visual-bell nil)
-    (load-theme 'doom-dracula t)
+    (load-theme 'doom-tokyo-night t)
     (doom-themes-org-config))
 #+end_src
 
-*** DASHBOARD
+** DOOM-MODELINE
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1)
+    :config
+    (setq doom-modeline-height 35      ;; sets modeline height
+          doom-modeline-bar-width 5    ;; sets right bar width
+          doom-modeline-persp-name t   ;; adds perspective name to modeline
+          doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
+#+end_src
+** DASHBOARD
 
 #+begin_src emacs-lisp
   (use-package dashboard
@@ -140,9 +183,8 @@
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
     (setq dashboard-banner-logo-title "hello world")
-    ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
-    ;; (setq dashboard-startup-banner 'default)  ;; use custom image as banner
-    (setq dashboard-center-content t) ;; set to 't' for centered content
+    (setq dashboard-startup-banner 3)
+    (setq dashboard-center-content t)
     (setq dashboard-items '((recents . 5)
                             (agenda . 5 )
                             (bookmarks . 3)
@@ -154,10 +196,16 @@
     :config
     (dashboard-setup-startup-hook))
 #+end_src
-** RESOURCE PACKAGE
+* RESOURCE PACKAGES
+** DIMINISH
 
-*** UI RESOURCE
-**** all the icons
+This package implements hiding or abbreviation of the modeline displays of minor-modes.
+
+#+begin_src emacs-lisp
+  (use-package diminish
+    :ensure t)
+#+end_src
+** ALL-THE-ICONS
 #+begin_src emacs-lisp
   ;; icons
   (use-package all-the-icons
@@ -173,14 +221,14 @@
     (dired-mode . (lambda () (all-the-icons-dired-mode 1))))
 #+end_src
 
-**** nerd icons
+** NERD-ICONS
 
 #+begin_src emacs-lisp
   ;; nerd icons
   (use-package nerd-icons
     :ensure t)
 #+end_src
-**** buffer move
+** BUFFER-MOVE
 #+begin_src emacs-lisp
   (defun buf-move-up ()
     "Swap the current buffer and the buffer above the split.
@@ -244,35 +292,14 @@
         (select-window other-win))))
 
 #+end_src
-*** OTHER FUNCTIONAL RESOURCE
-**** popon
-#+begin_src emacs-lisp
-  (use-package popon
-    :ensure t)
-#+end_src
-**** diminish
-
-This package implements hiding or abbreviation of the modeline displays of minor-modes.
-
-#+begin_src emacs-lisp
-  (use-package diminish
-    :ensure t)
-#+end_src
-**** projectile
-#+begin_src emacs-lisp
-  (use-package projectile
-    :ensure t
-    :diminish
-    :config
-    (projectile-mode 1))
-#+end_src
-**** sudo edit
+* FUNCTIONAL PACKAGES
+** SUDO-EDIt
 
 #+begin_src emacs-lisp
   (use-package sudo-edit
     :ensure t)
 #+end_src
-**** which-key
+** WHICH-KEY
 
 which-key package for keymap description.
 
@@ -298,7 +325,28 @@ which-key package for keymap description.
   	which-key-separator " → " ))
 #+end_src
 
-**** neotree
+** POPON
+#+begin_src emacs-lisp
+  (use-package popon
+    :ensure t)
+#+end_src
+** PROJECTILE
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :diminish
+    :config
+    (projectile-mode 1))
+#+end_src
+** MAGIT
+#+begin_src emacs-lisp
+  (use-package transient
+    :ensure t)
+
+  (use-package magit
+    :ensure t)
+#+end_src
+** NEOTREE
 
 #+begin_src emacs-lisp
   (use-package neotree
@@ -311,15 +359,7 @@ which-key package for keymap description.
     (setq neo-autorefresh nil))
 #+end_src
 
-**** magit
-#+begin_src emacs-lisp
-  (use-package transient
-    :ensure t)
-
-  (use-package magit
-    :ensure t)
-#+end_src
-**** eshell
+** ESHELL
 
 #+begin_src emacs-lisp
   ;; eshell syntax highlight
@@ -362,7 +402,7 @@ which-key package for keymap description.
   	(select-window win)))))
 #+end_src
 
-**** vterm
+** VTERM
 
 Vterm is a terminal eemulator within emacs. The 'shell-file-name' setting sets the shell to be used in
 
@@ -402,9 +442,29 @@ By default, the shell is set to 'zsh'.
                    (reusable-frames . visible)
                    (window-height . 0.3))))
 #+end_src
+** DIRED
+#+begin_src emacs-lisp
+  (use-package dired-open
+    :ensure t
+    :config
+    (setq dired-open-extensions '(("gif" . "sxiv")
+                                  ("jpg" . "sxiv")
+                                  ("png" . "sxiv")
+                                  ("mkv" . "mpv")
+                                  ("mp4" . "mpv"))))
 
-** EVIL MODE
-*** EVIL PACKAGES
+  (use-package peep-dired
+    :after dired
+    :hook (evil-normalize-keymaps . peep-dired-hook)
+    :config
+    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file) ; use dired-find-file instead if not using dired-open package
+    (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
+    (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file)
+    )
+#+end_src
+* EVIL MODE
+** EVIL PACKAGES
 
 #+begin_src emacs-lisp
 
@@ -451,113 +511,7 @@ By default, the shell is set to 'zsh'.
 
 #+end_src
 
-** COMPLETION
-*** frontend
-**** corfu
-
-I use [[https://github.com/minad/corfu][Corfu]] as completion frontend.
-
-#+begin_src emacs-lisp
-  (use-package corfu
-    :ensure t
-    :init
-    (global-corfu-mode)
-    :custom
-    (corfu-auto t)
-    (corfu-auto-delay 0.1)
-    (corfu-auto-prefix 1)          ;; 输入 1 个字符就触发
-    (corfu-quit-no-match 'separator)
-    (corfu-cycle t)                ;; TAB 循环候选项
-    (corfu-preselect 'prompt))
-#+end_src
-
-**** kind-icon
-
-#+begin_src emacs-lisp
-  (use-package kind-icon
-    :ensure t
-    :after corfu
-    :custom
-    (kind-icon-default-face 'corfu-default) ; 让图标背景跟随主题
-    :config
-    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-#+end_src
-
-**** vertico
-
-#+begin_src emacs-lisp
-  (use-package vertico
-    :ensure t
-    :init (vertico-mode))
-#+end_src
-
-**** orderless
-
-#+begin_src emacs-lisp
-  (use-package orderless
-    :ensure t
-    :custom (completion-styles '(orderless))
-    (completion-category-overrides '((file (styles basic partial-completion)))))
-#+end_src
-
-*** Backend
-
-**** cape
-
-I use [[https://github.com/minad/cape][Cape]] as completion backend.
-
-#+begin_src emacs-lisp
-  (use-package cape
-    :ensure t
-    :init
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions #'cape-file)
-    (add-to-list 'completion-at-point-functions #'cape-keyword))
-  ;; tab configuration
-  (with-eval-after-load 'corfu
-    (define-key corfu-map (kbd "TAB") #'corfu-next)
-    (define-key corfu-map (kbd "<tab>") #'corfu-next)
-    (define-key corfu-map (kbd "<backtab>") #'corfu-previous))
-#+end_src
-
-**** language support
-#+begin_src emacs-lisp
-  ;; cmake
-  (use-package cmake-mode
-    :ensure nil
-    :diminish
-    :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-  (use-package cmake-font-lock
-    :ensure t
-    :hook (cmake-mode . cmake-font-lock-activate))
-
-  ;; lua
-  (use-package lua-mode
-    :diminish
-    :ensure)
-#+end_src
-**** eglot
-
-#+begin_src emacs-lisp
-  (use-package eglot
-    :ensure nil
-    :diminish
-    :config
-    :hook ((c-mode c++-mode cmake-mode) . eglot-ensure))
-#+end_src
-**** flymake
-
-#+begin_src emacs-lisp
-  (use-package flymake
-    :ensure nil
-    :diminish
-    :config)
-  (use-package flymake-popon
-    :ensure t
-    :hook (flymake-mode . flymake-popon-mode))
-#+end_src
-
-** GENERAL
+* GENERAL
 
 #+begin_src emacs-lisp
   (use-package general
@@ -643,9 +597,139 @@ I use [[https://github.com/minad/cape][Cape]] as completion backend.
     )
 #+end_src
 
-** Document
-*** ORG-MODE
-**** org-mode rendering
+* COMPLATION
+** IVY
+#+begin_src emacs-lisp
+  (use-package ivy
+    :ensure t
+    :bind
+    ;; ivy-resume resumes the last Ivy-based completion.
+    (("C-c C-r" . ivy-resume)
+     ("C-x B" . ivy-switch-buffer-other-window))
+    :diminish
+    :custom
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq enable-recursive-minibuffers t)
+    :config
+    (ivy-mode))
+
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :init (all-the-icons-ivy-rich-mode 1))
+  (use-package ivy-rich
+    :after ivy
+    :ensure t
+    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+    :custom
+    (ivy-virtual-abbreviate 'full
+  			  ivy-rich-switch-buffer-align-virtual-buffer t
+  			  ivy-rich-path-style 'abbrev)
+    :config
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer))
+#+end_src
+
+** COUNSEL
+#+begin_src emacs-lisp
+  (use-package counsel
+    :after ivy
+    :ensure t
+    :diminish
+    :config 
+    (counsel-mode)
+    (setq ivy-initial-inputs-alist nil)) ;; removes starting ^ regex in M-x
+#+end_src
+
+** COMPANY
+#+begin_src emacs-lisp
+  (use-package company
+    :ensure t
+    :defer 2
+    :diminish
+    :custom
+    (company-begin-commands '(self-insert-command))
+    (company-idle-delay .1)
+    (company-minimum-prefix-length 2)
+    (company-show-numbers t)
+    (company-tooltip-align-annotations 't)
+    (global-company-mode t))
+#+end_src
+** FLYCHECK
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :ensure t
+    :init (global-flycheck-mode))
+#+end_src
+** LANGUAGE-SUPPORT
+#+begin_src emacs-lisp
+  (use-package cmake-mode
+    :ensure nil
+    :diminish
+    :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
+  (use-package cmake-font-lock
+    :ensure t
+    :hook (cmake-mode . cmake-font-lock-activate))
+
+  ;; lua
+  (use-package lua-mode
+    :ensure t)
+#+end_src
+** LSP
+*** LSP-MODE
+
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :ensure t
+    :init
+    ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+    (setq lsp-keymap-prefix "C-c l")
+    (setq lsp-diagnostics-provider :flycheck)
+    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+           (c-mode . lsp)
+           (c++-mode . lsp)
+           (cmake-mode . lsp)
+           (lua-mode . lsp)
+           ;; if you want which-key integration
+           (lsp-mode . lsp-enable-which-key-integration))
+    :commands lsp)
+#+end_src
+
+*** LSP-UI
+
+#+begin_src emacs-lisp
+  (use-package lsp-ui
+    :ensure t
+    :custom
+    ;; lsp ui doc
+    (lsp-ui-doc-enable t)                     ;; 启用文档悬浮窗
+    (lsp-ui-doc-delay 0.2)                    ;; 延迟显示，避免闪烁
+    (lsp-ui-doc-position 'at-point)           ;; 文档显示在光标附近
+    (lsp-ui-doc-max-width 80)
+    (lsp-ui-doc-max-height 20)
+    (lsp-ui-doc-show-with-cursor t)           ;; 光标移动时更新
+    (lsp-ui-doc-show-with-mouse nil)          ;; 禁止鼠标触发（避免干扰）
+    (lsp-ui-doc-use-childframe t)             ;; 使用 childframe（更美观）
+    ;; (lsp-ui-doc-use-webkit nil)            ;; Linux 建议关闭 webkit
+    ;; lsp ui sideline
+    (lsp-ui-sideline-enable t)                ;; 启用 sideline
+    (lsp-ui-sideline-show-hover nil)          ;; 不要在 sideline 显示 hover（太吵）
+    (lsp-ui-sideline-show-code-actions t)     ;; 显示可用的 code actions
+    (lsp-ui-sideline-show-diagnostics t)      ;; 显示诊断信息
+    (lsp-ui-sideline-delay 0.2)
+    (lsp-ui-sideline-ignore-duplicate t)
+    ;; lsp ui peek
+    (lsp-ui-peek-enable t)
+    (lsp-ui-peek-show-directory t)
+    (lsp-ui-peek-always-show t)
+    ;; lsp ui imenu
+    (lsp-ui-imenu-enable t)
+    (lsp-ui-imenu-kind-position 'top)
+    :commands lsp-ui-mode)
+#+end_src
+
+* DOCUMENT
+** ORG-MODE
 
 Enabling table of contents
 
@@ -665,7 +749,6 @@ Enabling org bullets
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 
-**** source code block tag expansion
 
 | Typing the below + TAB | Expands to ...                          |
 |------------------------+-----------------------------------------|
@@ -683,4 +766,6 @@ Enabling org bullets
 #+begin_src emacs-lisp
   (require 'org-tempo)
 #+end_src
+
+
 
