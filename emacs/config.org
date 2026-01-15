@@ -6,6 +6,7 @@
 * TABLE OF DOC :toc:
 - [[#basic-ui-configuration][BASIC UI CONFIGURATION]]
   - [[#basic-ui][BASIC UI]]
+  - [[#basic-function][BASIC FUNCTION]]
   - [[#fonts][FONTS]]
 - [[#elpaca-package-manager][ELPACA PACKAGE MANAGER]]
 - [[#ui-packages][UI PACKAGES]]
@@ -33,7 +34,10 @@
 - [[#complation][COMPLATION]]
   - [[#ivy][IVY]]
   - [[#counsel][COUNSEL]]
-  - [[#company][COMPANY]]
+  - [[#corfu][CORFU]]
+  - [[#kind-icon][KIND-ICON]]
+  - [[#cape][CAPE]]
+  - [[#orderless][ORDERLESS]]
   - [[#flycheck][FLYCHECK]]
   - [[#language-support][LANGUAGE-SUPPORT]]
   - [[#lsp][LSP]]
@@ -69,6 +73,12 @@
 
   (add-to-list 'default-frame-alist '(alpha-background . 70)) 
 
+#+end_src
+
+** BASIC FUNCTION
+
+#+begin_src emacs-lisp
+(electric-pair-mode 1)
 #+end_src
 
 ** FONTS
@@ -574,6 +584,9 @@ By default, the shell is set to 'zsh'.
       "f U" '(sudo-edit :wk "sudo edit file")
       "."   '(find-file :wk "find file")
 
+      "l " '(:ignore t :wk "coding language server functions")
+      "l f" '(lsp-format-buffer :wk "format current buffer")
+
       ;; shell and terminal 
       "t"   '(:ignore t :wk "shell and terminal")
       "t t" '(vterm-toggle :wk "vterm toggle")
@@ -641,20 +654,72 @@ By default, the shell is set to 'zsh'.
     (setq ivy-initial-inputs-alist nil)) ;; removes starting ^ regex in M-x
 #+end_src
 
-** COMPANY
+** CORFU
 #+begin_src emacs-lisp
-  (use-package company
+  (use-package corfu
     :ensure t
-    :defer 2
-    :diminish
     :custom
-    (company-begin-commands '(self-insert-command))
-    (company-idle-delay .1)
-    (company-minimum-prefix-length 2)
-    (company-show-numbers t)
-    (company-tooltip-align-annotations 't)
-    (global-company-mode t))
+    (corfu-auto t)
+    (corfu-auto-delay 0.1)
+    (corfu-auto-prefix 1)
+    (corfu-cycle t)
+    :init
+    (global-corfu-mode))
 #+end_src
+** KIND-ICON
+
+#+begin_src emacs-lisp
+  (use-package kind-icon
+    :ensure t
+    :after corfu
+    :custom
+    (kind-icon-default-face 'corfu-default)
+    :config
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+#+end_src
+
+** CAPE
+
+#+begin_src emacs-lisp
+(use-package cape
+  :ensure t
+  :init
+  ;; 全局启用 Cape（buffer-local）
+  (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
+  (add-hook 'completion-at-point-functions #'cape-file nil t)
+  (add-hook 'completion-at-point-functions #'cape-keyword nil t)
+
+  ;; 在所有 major-mode 中启用
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
+              (add-hook 'completion-at-point-functions #'cape-file nil t)
+              (add-hook 'completion-at-point-functions #'cape-keyword nil t)))
+
+  (add-hook 'text-mode-hook
+            (lambda ()
+              (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
+              (add-hook 'completion-at-point-functions #'cape-file nil t)
+              (add-hook 'completion-at-point-functions #'cape-keyword nil t)))
+
+  (add-hook 'makefile-mode-hook
+            (lambda ()
+              (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
+              (add-hook 'completion-at-point-functions #'cape-file nil t)
+              (add-hook 'completion-at-point-functions #'cape-keyword nil t))))
+#+end_src
+
+** ORDERLESS
+
+#+begin_src emacs-lisp
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+
 ** FLYCHECK
 #+begin_src emacs-lisp
   (use-package flycheck
