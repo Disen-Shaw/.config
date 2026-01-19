@@ -19,11 +19,11 @@
   - [[#nerd-icons][NERD-ICONS]]
   - [[#buffer-move][BUFFER-MOVE]]
 - [[#functional-packages][FUNCTIONAL PACKAGES]]
-  - [[#sudo-edit][SUDO-EDIt]]
+  - [[#sudo-edit][SUDO-EDIT]]
   - [[#which-key][WHICH-KEY]]
   - [[#popon][POPON]]
-  - [[#projectile][PROJECTILE]]
   - [[#magit][MAGIT]]
+  - [[#projectile][PROJECTILE]]
   - [[#neotree][NEOTREE]]
   - [[#eshell][ESHELL]]
   - [[#vterm][VTERM]]
@@ -31,13 +31,10 @@
 - [[#evil-mode][EVIL MODE]]
   - [[#evil-packages][EVIL PACKAGES]]
 - [[#general][GENERAL]]
-- [[#complation][COMPLATION]]
+- [[#completion][COMPLETION]]
   - [[#ivy][IVY]]
   - [[#counsel][COUNSEL]]
-  - [[#corfu][CORFU]]
-  - [[#kind-icon][KIND-ICON]]
-  - [[#cape][CAPE]]
-  - [[#orderless][ORDERLESS]]
+  - [[#company][COMPANY]]
   - [[#flycheck][FLYCHECK]]
   - [[#language-support][LANGUAGE-SUPPORT]]
   - [[#lsp][LSP]]
@@ -78,7 +75,14 @@
 ** BASIC FUNCTION
 
 #+begin_src emacs-lisp
-(electric-pair-mode 1)
+  (electric-pair-mode 1)
+#+end_src
+
+Default browser settings.
+
+#+begin_src emacs-lisp
+  (setq browse-url-browser-function 'browse-url-generic)
+  (setq browse-url-generic-program "qutebrowser")
 #+end_src
 
 ** FONTS
@@ -192,20 +196,20 @@
     (setq initial-buffer-choice 'dashboard-open)
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
-    (setq dashboard-banner-logo-title "hello world")
+    (setq dashboard-banner-logo-title "happy coding!")
     (setq dashboard-startup-banner 3)
     (setq dashboard-center-content t)
-    (setq dashboard-items '((recents . 5)
-                            (agenda . 5 )
-                            (bookmarks . 3)
-                            (projects . 3)
-                            (registers . 3)))
+    (setq dashboard-projects-backend 'projectile)
+    (progn
+      (setq dashboard-items '((recents . 8)
+  			    (projects . 3))))
     :custom
     (dashboard-modify-heading-icons '((recents . "file-text")
-                                      (bookmarks . "book")))
+  				    (bookmarks . "book")))
     :config
     (dashboard-setup-startup-hook))
 #+end_src
+
 * RESOURCE PACKAGES
 ** DIMINISH
 
@@ -303,7 +307,7 @@ This package implements hiding or abbreviation of the modeline displays of minor
 
 #+end_src
 * FUNCTIONAL PACKAGES
-** SUDO-EDIt
+** SUDO-EDIT
 
 #+begin_src emacs-lisp
   (use-package sudo-edit
@@ -340,14 +344,6 @@ which-key package for keymap description.
   (use-package popon
     :ensure t)
 #+end_src
-** PROJECTILE
-#+begin_src emacs-lisp
-  (use-package projectile
-    :ensure t
-    :diminish
-    :config
-    (projectile-mode 1))
-#+end_src
 ** MAGIT
 #+begin_src emacs-lisp
   (use-package transient
@@ -355,6 +351,14 @@ which-key package for keymap description.
 
   (use-package magit
     :ensure t)
+#+end_src
+** PROJECTILE
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :diminish
+    :config
+    (projectile-mode 1))
 #+end_src
 ** NEOTREE
 
@@ -447,10 +451,10 @@ By default, the shell is set to 'zsh'.
                    (display-buffer-reuse-window display-buffer-at-bottom)
                    ;;(display-buffer-reuse-window display-buffer-in-direction)
                    ;;display-buffer-in-direction/direction/dedicated is added in emacs27
-                   ;;(direction . bottom)
-                   ;;(dedicated . t) ;dedicated is supported in emacs27
+                   (direction . bottom)
+                   (dedicated . t) ;dedicated is supported in emacs27
                    (reusable-frames . visible)
-                   (window-height . 0.3))))
+                   (window-height . 0.35))))
 #+end_src
 ** DIRED
 #+begin_src emacs-lisp
@@ -486,19 +490,19 @@ By default, the shell is set to 'zsh'.
     :demand t
     :config
     ;; my vim keymap ;;;;;;;;;;;;;;;;;;;
-    (evil-define-motion my/evil/move-down-5-lines (count)
+    (evil-define-motion ds/evil/move-down-5-lines (count)
       "Move down 5 lines."
       :type line
       (evil-next-line (or count 5)))
-    (evil-define-motion my/evil/move-up-5-lines (count)
+    (evil-define-motion ds/evil/move-up-5-lines (count)
       "Move down 5 lines."
       :type line
       (evil-previous-line (or count 5)))
-    (evil-define-motion my/evil/move-beginning-of-line ()
+    (evil-define-motion ds/evil/move-beginning-of-line ()
       "Move to beginning of current line."
       :type exclusive
       (evil-first-non-blank))
-    (evil-define-motion my/evil/move-end-of-line ()
+    (evil-define-motion ds/evil/move-end-of-line ()
       "Move to end of current line."
       :type exclusive
       (evil-end-of-line))
@@ -537,10 +541,10 @@ By default, the shell is set to 'zsh'.
     ;; normal and visual mode keymap
     (general-define-key
      :states '(normal visual)
-     "J" #'my/evil/move-down-5-lines
-     "K" #'my/evil/move-up-5-lines
-     "H" #'my/evil/move-beginning-of-line
-     "L" #'my/evil/move-end-of-line
+     "J" #'ds/evil/move-down-5-lines
+     "K" #'ds/evil/move-up-5-lines
+     "H" #'ds/evil/move-beginning-of-line
+     "L" #'ds/evil/move-end-of-line
      "S" #'save-buffer
      "gc" #'comment-line)
 
@@ -555,11 +559,11 @@ By default, the shell is set to 'zsh'.
       "b r" '(revert-buffer t :wk "reload buffer")
 
       ;; helo information
-      "h"   '(:ignore t :wk "help")
-      "hf"  '(describe-function :wk "describe function")
-      "hv"  '(describe-variable :wk "describe variable")
-      "hm"  '(describe-mode :wk "describe mode")
-      "hrr" '((lambda () (interactive)
+      "h"    '(:ignore t :wk "help")
+      "h f"  '(describe-function :wk "describe function")
+      "h v"  '(describe-variable :wk "describe variable")
+      "h m"  '(describe-mode :wk "describe mode")
+      "h rr" '((lambda () (interactive)
     	      (load-file "~/.config/emacs/init.el")
     	      (load-file "~/.config/emacs/init.el"))
     	    :wk "reload emacs config")
@@ -582,26 +586,16 @@ By default, the shell is set to 'zsh'.
       "f r" '(counsel-recentf :wk "find recent files.")
       "f u" '(sudo-edit-find-file :wk "sudo find file")
       "f U" '(sudo-edit :wk "sudo edit file")
-      "."   '(find-file :wk "find file")
+      "SPC SPC" '(find-file :wk "find file")
 
       "l " '(:ignore t :wk "coding language server functions")
       "l f" '(lsp-format-buffer :wk "format current buffer")
 
       ;; shell and terminal 
       "t"   '(:ignore t :wk "shell and terminal")
-      "t t" '(vterm-toggle :wk "vterm toggle")
+      "t v" '(vterm-toggle :wk "vterm toggle")
+      "t t" '(neotree-toggle :wk "neotree toggle")
       "t T" '(eshell :wk "eshell"))
-
-    ;; window operation
-    (general-define-key
-     :states '(normal)
-     :keymaps 'override
-     :prefix "<tab>"
-     "h" '(evil-window-left :wk "switch to left window")
-     "l" '(evil-window-right :wk "switch to right window")
-     "k" '(evil-window-up :wk "switch to above window")
-     "j" '(evil-window-down :wk "switch to below window")
-     "t" '(neotree-toggle :wk "neotree"))
 
     ;; eshell
     (general-define-key
@@ -610,7 +604,7 @@ By default, the shell is set to 'zsh'.
     )
 #+end_src
 
-* COMPLATION
+* COMPLETION
 ** IVY
 #+begin_src emacs-lisp
   (use-package ivy
@@ -654,72 +648,20 @@ By default, the shell is set to 'zsh'.
     (setq ivy-initial-inputs-alist nil)) ;; removes starting ^ regex in M-x
 #+end_src
 
-** CORFU
+** COMPANY
 #+begin_src emacs-lisp
-  (use-package corfu
+  (use-package company
     :ensure t
+    :defer 2
+    :diminish
     :custom
-    (corfu-auto t)
-    (corfu-auto-delay 0.1)
-    (corfu-auto-prefix 1)
-    (corfu-cycle t)
-    :init
-    (global-corfu-mode))
+    (company-begin-commands '(self-insert-command))
+    (company-idle-delay .1)
+    (company-minimum-prefix-length 1)
+    (company-show-numbers t)
+    (company-tooltip-align-annotations 't)
+    (global-company-mode t))
 #+end_src
-** KIND-ICON
-
-#+begin_src emacs-lisp
-  (use-package kind-icon
-    :ensure t
-    :after corfu
-    :custom
-    (kind-icon-default-face 'corfu-default)
-    :config
-    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-#+end_src
-
-** CAPE
-
-#+begin_src emacs-lisp
-(use-package cape
-  :ensure t
-  :init
-  ;; 全局启用 Cape（buffer-local）
-  (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
-  (add-hook 'completion-at-point-functions #'cape-file nil t)
-  (add-hook 'completion-at-point-functions #'cape-keyword nil t)
-
-  ;; 在所有 major-mode 中启用
-  (add-hook 'prog-mode-hook
-            (lambda ()
-              (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
-              (add-hook 'completion-at-point-functions #'cape-file nil t)
-              (add-hook 'completion-at-point-functions #'cape-keyword nil t)))
-
-  (add-hook 'text-mode-hook
-            (lambda ()
-              (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
-              (add-hook 'completion-at-point-functions #'cape-file nil t)
-              (add-hook 'completion-at-point-functions #'cape-keyword nil t)))
-
-  (add-hook 'makefile-mode-hook
-            (lambda ()
-              (add-hook 'completion-at-point-functions #'cape-dabbrev nil t)
-              (add-hook 'completion-at-point-functions #'cape-file nil t)
-              (add-hook 'completion-at-point-functions #'cape-keyword nil t))))
-#+end_src
-
-** ORDERLESS
-
-#+begin_src emacs-lisp
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles basic partial-completion)))))
-#+end_src
-
 ** FLYCHECK
 #+begin_src emacs-lisp
   (use-package flycheck
@@ -749,6 +691,7 @@ By default, the shell is set to 'zsh'.
     :init
     ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
     (setq lsp-keymap-prefix "C-c l")
+    (setq lsp-eldoc-enable-hover nil)
     (setq lsp-diagnostics-provider :flycheck)
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
            (c-mode . lsp)
@@ -768,9 +711,9 @@ By default, the shell is set to 'zsh'.
     :custom
     ;; lsp ui doc
     (lsp-ui-doc-enable t)                     ;; 启用文档悬浮窗
-    (lsp-ui-doc-delay 0.2)                    ;; 延迟显示，避免闪烁
+    (lsp-ui-doc-delay 0.4)                    ;; 延迟显示，避免闪烁
     (lsp-ui-doc-position 'at-point)           ;; 文档显示在光标附近
-    (lsp-ui-doc-max-width 80)
+    (lsp-ui-doc-max-width 120)
     (lsp-ui-doc-max-height 20)
     (lsp-ui-doc-show-with-cursor t)           ;; 光标移动时更新
     (lsp-ui-doc-show-with-mouse nil)          ;; 禁止鼠标触发（避免干扰）
@@ -831,6 +774,4 @@ Enabling org bullets
 #+begin_src emacs-lisp
   (require 'org-tempo)
 #+end_src
-
-
 
