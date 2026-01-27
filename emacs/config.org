@@ -366,7 +366,8 @@ which-key package for keymap description.
   (use-package neotree
     :ensure t
     :config
-    (setq neo-theme 'nerd-icons) 
+    (setq neo-theme 'nerd-icons)
+    (setq neo-window-width 40)
     (setq neo-smart-open t)
     (setq neo-window-fixed-size nil)
     (setq neo-show-hidden-files t)
@@ -590,11 +591,13 @@ By default, the shell is set to 'zsh'.
 
       "l " '(:ignore t :wk "coding language server functions")
       "l f" '(lsp-format-buffer :wk "format current buffer")
+      "l r" '(lsp-rename :wk "rename current symbol")
 
       ;; shell and terminal 
       "t"   '(:ignore t :wk "shell and terminal")
       "t v" '(vterm-toggle :wk "vterm toggle")
       "t t" '(neotree-toggle :wk "neotree toggle")
+      "t g" '(magit :wk "magit")
       "t T" '(eshell :wk "eshell"))
 
     ;; eshell
