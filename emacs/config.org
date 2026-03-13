@@ -8,8 +8,10 @@
   - [[#basic-ui][BASIC UI]]
   - [[#basic-function][BASIC FUNCTION]]
   - [[#fonts][FONTS]]
+  - [[#hs][HS]]
 - [[#elpaca-package-manager][ELPACA PACKAGE MANAGER]]
 - [[#ui-packages][UI PACKAGES]]
+- [[#ui-packages-1][UI PACKAGES]]
   - [[#doom-themes][DOOM-THEMES]]
   - [[#doom-modeline][DOOM-MODELINE]]
   - [[#dashboard][DASHBOARD]]
@@ -32,14 +34,19 @@
   - [[#evil-packages][EVIL PACKAGES]]
 - [[#general][GENERAL]]
 - [[#completion][COMPLETION]]
-  - [[#ivy][IVY]]
-  - [[#counsel][COUNSEL]]
-  - [[#company][COMPANY]]
-  - [[#flycheck][FLYCHECK]]
-  - [[#language-support][LANGUAGE-SUPPORT]]
-  - [[#lsp][LSP]]
+  - [[#vertico][VERTICO]]
+  - [[#orderless][ORDERLESS]]
+  - [[#marginalia][MARGINALIA]]
+  - [[#consult][CONSULT]]
+  - [[#savehist][SAVEHIST]]
+  - [[#eglog][EGLOG]]
+  - [[#corfu][CORFU]]
+  - [[#cape][CAPE]]
+  - [[#kind-icon][KIND-ICON]]
+  - [[#flymake][FLYMAKE]]
 - [[#document][DOCUMENT]]
   - [[#org-mode][ORG-MODE]]
+  - [[#markdown-mode][MARKDOWN-MODE]]
 
 * BASIC UI CONFIGURATION
 
@@ -70,11 +77,15 @@
 
   (add-to-list 'default-frame-alist '(alpha-background . 70)) 
 
+  ;; mouse hide when inser 
+  (setq make-pointer-invisible t)
+  (global-font-lock-mode t)
 #+end_src
 
 ** BASIC FUNCTION
 
 #+begin_src emacs-lisp
+  (save-place-mode 1)
   (electric-pair-mode 1)
 #+end_src
 
@@ -117,17 +128,21 @@ Default browser settings.
   		(emacs_basic_settings/setup-fonts)))))  
 #+end_src
 
+** HS
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook #'hs-minor-mode)
+#+end_src
 * ELPACA PACKAGE MANAGER
 #+begin_src emacs-lisp
-  (defvar elpaca-installer-version 0.11)
+  (defvar elpaca-installer-version 0.12)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-sources-directory (expand-file-name "sources/" elpaca-directory))
   (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
                                 :ref nil :depth 1 :inherit ignore
                                 :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                                :build (:not elpaca--activate-package)))
-  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+                                :build (:not elpaca-activate)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-sources-directory))
          (build (expand-file-name "elpaca/" elpaca-builds-directory))
          (order (cdr elpaca-order))
          (default-directory repo))
@@ -160,9 +175,9 @@ Default browser settings.
   (elpaca elpaca-use-package
     ;; Enable use-package :ensure support for Elpaca.
     (elpaca-use-package-mode))
-
 #+end_src
 
+* UI PACKAGES
 * UI PACKAGES
 ** DOOM-THEMES
 
@@ -171,7 +186,9 @@ Default browser settings.
     :ensure t
     :config
     (setq doom-themes-visual-bell nil
-  	doom-modeline-enable-visual-bell nil)
+  	doom-modeline-enable-visual-bell nil
+  	doom-themes-enable-bold t
+  	doom-themes-enable-italic t)
     (load-theme 'doom-tokyo-night t)
     (doom-themes-org-config))
 #+end_src
@@ -207,7 +224,8 @@ Default browser settings.
     (dashboard-modify-heading-icons '((recents . "file-text")
   				    (bookmarks . "book")))
     :config
-    (dashboard-setup-startup-hook))
+    (dashboard-setup-startup-hook)
+    (add-hook 'dashboard-mode-hook #'dashboard-hide-mode-line))
 #+end_src
 
 * RESOURCE PACKAGES
@@ -366,9 +384,10 @@ which-key package for keymap description.
   (use-package neotree
     :ensure t
     :config
+    (setq neo-window-width 32)
     (setq neo-theme 'nerd-icons) 
     (setq neo-smart-open t)
-    (setq neo-window-fixed-size nil)
+    (setq neo-window-fixed-size nil) 
     (setq neo-show-hidden-files t)
     (setq neo-autorefresh nil))
 #+end_src
@@ -481,7 +500,6 @@ By default, the shell is set to 'zsh'.
 ** EVIL PACKAGES
 
 #+begin_src emacs-lisp
-
   (use-package evil
     :ensure t
     :init 
@@ -522,7 +540,6 @@ By default, the shell is set to 'zsh'.
     (evil-escape-mode)
     (setq evil-escape-key-sequence "jk"
           evil-escape-delay 0.15))
-
 #+end_src
 
 * GENERAL
@@ -541,6 +558,7 @@ By default, the shell is set to 'zsh'.
     ;; normal and visual mode keymap
     (general-define-key
      :states '(normal visual)
+     :keymaps 'override
      "J" #'ds/evil/move-down-5-lines
      "K" #'ds/evil/move-up-5-lines
      "H" #'ds/evil/move-beginning-of-line
@@ -564,9 +582,9 @@ By default, the shell is set to 'zsh'.
       "h v"  '(describe-variable :wk "describe variable")
       "h m"  '(describe-mode :wk "describe mode")
       "h rr" '((lambda () (interactive)
-    	      (load-file "~/.config/emacs/init.el")
-    	      (load-file "~/.config/emacs/init.el"))
-    	    :wk "reload emacs config")
+    	       (load-file "~/.config/emacs/init.el")
+    	       (load-file "~/.config/emacs/init.el"))
+    	     :wk "reload emacs config")
 
       ;; window management
       "w"   '(:ignore t :wk "windows")
@@ -583,13 +601,17 @@ By default, the shell is set to 'zsh'.
       ;; file
       "f"   '(:ignore t :wk "file operation")
       "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "edit config.org")
-      "f r" '(counsel-recentf :wk "find recent files.")
       "f u" '(sudo-edit-find-file :wk "sudo find file")
       "f U" '(sudo-edit :wk "sudo edit file")
       "SPC SPC" '(find-file :wk "find file")
 
-      "l " '(:ignore t :wk "coding language server functions")
-      "l f" '(lsp-format-buffer :wk "format current buffer")
+      "l "  '(:ignore t :wk "coding language server functions")
+      "l f" '(eglot-format-buffer :wk "format current buffer")
+      "l r" '(eglot-rename :wk "rename current symbol")
+      "l a" '(eglot-code-actions :wk "code actions")
+      "l e" '(consult-flymake :wk "list errors in buffer")
+      "l n" '(flymake-goto-next-error :wk "next error")
+      "l p" '(flymake-goto-prev-error :wk "previous error")
 
       ;; shell and terminal 
       "t"   '(:ignore t :wk "shell and terminal")
@@ -605,137 +627,139 @@ By default, the shell is set to 'zsh'.
 #+end_src
 
 * COMPLETION
-** IVY
+** VERTICO
 #+begin_src emacs-lisp
-  (use-package ivy
-    :ensure t
-    :bind
-    ;; ivy-resume resumes the last Ivy-based completion.
-    (("C-c C-r" . ivy-resume)
-     ("C-x B" . ivy-switch-buffer-other-window))
-    :diminish
-    :custom
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-count-format "(%d/%d) ")
-    (setq enable-recursive-minibuffers t)
-    :config
-    (ivy-mode))
-
-  (use-package all-the-icons-ivy-rich
-    :ensure t
-    :init (all-the-icons-ivy-rich-mode 1))
-  (use-package ivy-rich
-    :after ivy
-    :ensure t
-    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
-    :custom
-    (ivy-virtual-abbreviate 'full
-  			  ivy-rich-switch-buffer-align-virtual-buffer t
-  			  ivy-rich-path-style 'abbrev)
-    :config
-    (ivy-set-display-transformer 'ivy-switch-buffer
-                                 'ivy-rich-switch-buffer-transformer))
-#+end_src
-
-** COUNSEL
-#+begin_src emacs-lisp
-  (use-package counsel
-    :after ivy
-    :ensure t
-    :diminish
-    :config 
-    (counsel-mode)
-    (setq ivy-initial-inputs-alist nil)) ;; removes starting ^ regex in M-x
-#+end_src
-
-** COMPANY
-#+begin_src emacs-lisp
-  (use-package company
-    :ensure t
-    :defer 2
-    :diminish
-    :custom
-    (company-begin-commands '(self-insert-command))
-    (company-idle-delay .1)
-    (company-minimum-prefix-length 1)
-    (company-show-numbers t)
-    (company-tooltip-align-annotations 't)
-    (global-company-mode t))
-#+end_src
-** FLYCHECK
-#+begin_src emacs-lisp
-  (use-package flycheck
-    :ensure t
-    :init (global-flycheck-mode))
-#+end_src
-** LANGUAGE-SUPPORT
-#+begin_src emacs-lisp
-  (use-package cmake-mode
-    :ensure nil
-    :diminish
-    :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-  (use-package cmake-font-lock
-    :ensure t
-    :hook (cmake-mode . cmake-font-lock-activate))
-
-  ;; lua
-  (use-package lua-mode
-    :ensure t)
-#+end_src
-** LSP
-*** LSP-MODE
-
-#+begin_src emacs-lisp
-  (use-package lsp-mode
+  (use-package vertico
     :ensure t
     :init
-    ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-    (setq lsp-keymap-prefix "C-c l")
-    (setq lsp-eldoc-enable-hover nil)
-    (setq lsp-diagnostics-provider :flycheck)
-    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-           (c-mode . lsp)
-           (c++-mode . lsp)
-           (cmake-mode . lsp)
-           (lua-mode . lsp)
-           ;; if you want which-key integration
-           (lsp-mode . lsp-enable-which-key-integration))
-    :commands lsp)
+    (vertico-mode)
+    :custom
+    (vertico-cycle t))
 #+end_src
-
-*** LSP-UI
-
+** ORDERLESS
 #+begin_src emacs-lisp
-  (use-package lsp-ui
+  (use-package orderless
     :ensure t
     :custom
-    ;; lsp ui doc
-    (lsp-ui-doc-enable t)                     ;; 启用文档悬浮窗
-    (lsp-ui-doc-delay 0.4)                    ;; 延迟显示，避免闪烁
-    (lsp-ui-doc-position 'at-point)           ;; 文档显示在光标附近
-    (lsp-ui-doc-max-width 120)
-    (lsp-ui-doc-max-height 20)
-    (lsp-ui-doc-show-with-cursor t)           ;; 光标移动时更新
-    (lsp-ui-doc-show-with-mouse nil)          ;; 禁止鼠标触发（避免干扰）
-    (lsp-ui-doc-use-childframe t)             ;; 使用 childframe（更美观）
-    ;; (lsp-ui-doc-use-webkit nil)            ;; Linux 建议关闭 webkit
-    ;; lsp ui sideline
-    (lsp-ui-sideline-enable t)                ;; 启用 sideline
-    (lsp-ui-sideline-show-hover nil)          ;; 不要在 sideline 显示 hover（太吵）
-    (lsp-ui-sideline-show-code-actions t)     ;; 显示可用的 code actions
-    (lsp-ui-sideline-show-diagnostics t)      ;; 显示诊断信息
-    (lsp-ui-sideline-delay 0.2)
-    (lsp-ui-sideline-ignore-duplicate t)
-    ;; lsp ui peek
-    (lsp-ui-peek-enable t)
-    (lsp-ui-peek-show-directory t)
-    (lsp-ui-peek-always-show t)
-    ;; lsp ui imenu
-    (lsp-ui-imenu-enable t)
-    (lsp-ui-imenu-kind-position 'top)
-    :commands lsp-ui-mode)
+    (completion-styles '(orderless basic))
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles . (partial-completion orderless))))))
 #+end_src
+** MARGINALIA
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :ensure t
+    :init
+    (marginalia-mode))
+#+end_src
+** CONSULT
+#+begin_src emacs-lisp
+  (use-package consult
+    :ensure t)
+#+end_src
+** SAVEHIST
+#+begin_src emacs-lisp
+  (use-package savehist
+    :ensure nil 
+    :init
+    (savehist-mode))
+#+end_src
+** EGLOG
+#+begin_src emacs-lisp
+  (use-package eglot
+    :ensure nil
+    :hook ((python-mode . eglot-ensure)
+           (c-mode . eglot-ensure)
+           (c++-mode . eglot-ensure)
+           (rust-mode . eglot-ensure))
+    :config
+    ;; 允许 eldoc 显示多行详细信息，这是弹出丰富文档的前提
+    (setq eldoc-echo-area-use-multiline-p t)
+    
+    ;; 优化：当 Eglot 激活时，合并补全源
+    (add-hook 'eglot-managed-mode-hook
+              (lambda ()
+                (setq-local completion-at-point-functions
+                            (list (cape-capf-super
+                                   #'eglot-completion-at-point
+                                   #'cape-dabbrev
+                                   #'cape-file))))))
 
+  (use-package eldoc-box
+    :ensure t
+    ;; 关键：必须添加这个钩子，才能在 eglot 管理的 buffer 里自动弹出浮窗
+    :hook (eglot-managed-mode . eldoc-box-hover-at-point-mode)
+    :config
+    (setq eldoc-box-child-frame-parameters
+          '((left-fringe . 8)
+            (right-fringe . 8)
+            (internal-border-width . 12) ; 增加内边距，让文字更有呼吸感
+            (vertical-scroll-bars . nil)
+            (horizontal-scroll-bars . nil)))
+
+    ;; 设置一个更有质感的背景色和边框
+    (set-face-attribute 'eldoc-box-body nil 
+                        :background "#1e1e1e" ; 深色背景
+                        :foreground "#d4d4d4" 
+                        :height 0.95)
+    
+    (set-face-attribute 'eldoc-box-border nil 
+                        :background "#3e3e42") ; 灰度边框，低调高级
+    
+    (setq eldoc-box-max-pixel-width 700) ; 稍微加宽，适合阅读代码签名
+    (setq eldoc-box-max-pixel-height 400))
+#+end_src
+** CORFU
+#+begin_src emacs-lisp
+  (use-package corfu
+    :ensure t
+    :init
+    (global-corfu-mode)
+    :custom
+    (corfu-auto t)                 
+    (corfu-auto-delay 0.1)         
+    (corfu-auto-prefix 1)          
+    (corfu-cycle t)                
+    (corfu-quit-at-boundary 'separator))
+#+end_src
+** CAPE
+#+begin_src emacs-lisp
+  (use-package cape
+    :ensure t
+    :init
+    (add-to-list 'completion-at-point-functions #'cape-file)      
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)   
+    (add-to-list 'completion-at-point-functions #'cape-keyword))  
+#+end_src
+** KIND-ICON
+#+begin_src emacs-lisp
+  (use-package kind-icon
+    :ensure t
+    :after corfu
+    :custom
+    (kind-icon-default-face 'corfu-default)
+    :config
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+#+end_src
+** FLYMAKE
+#+begin_src emacs-lisp
+  ;; sideline: 在行末显示报错信息
+  (use-package sideline
+    :ensure t
+    :hook (eglot-managed-mode . sideline-mode)
+    :init
+    (setq sideline-backends-right '(sideline-flymake))) ; 只在右侧显示 Flymake 报错
+  (use-package sideline-flymake
+    :ensure t
+    :custom
+    (sideline-flymake-display-mode 'line)) ; 显示整行的报错，而不仅仅是光标下的
+  (use-package flymake
+    :ensure nil
+    :hook (eglot-managed-mode . flymake-mode)
+    :config
+    (set-face-attribute 'flymake-error-echo nil :foreground "#ff6c6b")
+    (set-face-attribute 'flymake-warning-echo nil :foreground "#ecbe7b"))
+#+end_src
 * DOCUMENT
 ** ORG-MODE
 
@@ -774,4 +798,13 @@ Enabling org bullets
 #+begin_src emacs-lisp
   (require 'org-tempo)
 #+end_src
+
+** MARKDOWN-MODE
+#+begin_src emacs-lisp
+  (use-package markdown-mode
+    :ensure t
+    :config
+    (setq markdown-fontify-code-blocks-natively t))
+#+end_src
+
 
