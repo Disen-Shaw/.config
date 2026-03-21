@@ -591,7 +591,7 @@ which-key package for keymap description.
   	which-key-side-window-slot -10
   	which-key-side-window-max-height 0.5
   	which-key-idle-delay 0.8
-  	which-key-max-description-length 25
+  	which-key-max-description-length 100
   	which-key-allow-imprecise-window-fit nil
   	which-key-separator " → " ))
 #+end_src
@@ -742,56 +742,61 @@ which-key package for keymap description.
 
     (leader-key
       ;; buffer management
-      "b"   '(:ignore t :wk "buffer management")
-      "b b" '(switch-to-buffer t :wk "switch buffer")
-      "b i" '(ibuffer t :wk "list all buffers")
-      "b c" '(kill-current-buffer t :wk "close this buffer")
-      "b n" '(next-buffer t :wk "next buffer")
-      "b p" '(previous-buffer t :wk "previous buffer")
-      "b r" '(revert-buffer t :wk "reload buffer")
+      "b"   '(:ignore t :wk "Buffer Management")
+      "b b" '(switch-to-buffer t :wk "Display buffer BUFFER-OR-NAME in the selected window.")
+      "b i" '(ibuffer t :wk "Begin using Ibuffer to eidt a list of buffer.")
+      "b c" '(kill-current-buffer t :wk "Kill the current buffer.")
+      "b n" '(next-buffer t :wk "In selected window switch to ARGth next buffer.")
+      "b p" '(previous-buffer t :wk "In selected window switch to ARGth previous buffer.")
+      "b r" '(revert-buffer t :wk "Replace current buffer text with the text of the visited file on disk.")
 
       ;; helo information
-      "h"    '(:ignore t :wk "help")
-      "h f"  '(describe-function :wk "describe function")
-      "h v"  '(describe-variable :wk "describe variable")
-      "h m"  '(describe-mode :wk "describe mode")
+      "h"    '(:ignore t :wk "Help")
+      "h f"  '(describe-function :wk "Display the full documentation of FUNCTION(a symbol).")
+      "h v"  '(describe-variable :wk "Display the full documentation of VARIABLE(a symbol).")
+      "h v"  '(describe-mode :wk "Display documentation current major mode and minor modes.")
       "h rr" '((lambda () (interactive)
     	       (load-file "~/.config/emacs/init.el")
     	       (load-file "~/.config/emacs/init.el"))
-    	     :wk "reload emacs config")
+    	     :wk "Reload emacs configuration")
 
       ;; window management
-      "w"   '(:ignore t :wk "windows")
-      "w n" '(evil-window-new :wk "new window")
-      "w c" '(evil-window-delete :wk "close window")
-      "w s" '(evil-window-split :wk "horizontal split window")
-      "w v" '(evil-window-vsplit :wk "vertical split window")
+      "w"   '(:ignore t :wk "Window Management")
+      "w n" '(evil-window-new :wk "Split the current window horizontally.")
+      "w c" '(evil-window-delete :wk "Delete the current window of tab.")
+      "w s" '(evil-window-split :wk "Split the current window horizontally, COUNT lines height.")
+      "w v" '(evil-window-vsplit :wk "Split the current window vertically, COUNT columns width.")
       ;; move windows
-      "w H" '(buf-move-left :wk "buffer move left")
-      "w L" '(buf-move-right :wk "buffer move right")
-      "w J" '(buf-move-down :wk "buffer move down")
-      "w K" '(buf-move-up :wk "buffer move up")
+      "w H" '(buf-move-left :wk "Swap the current buffer and the buffer on the left of the split.")
+      "w L" '(buf-move-right :wk "Swap the current buffer and the buffer on the right of the split.")
+      "w J" '(buf-move-down :wk "Swap the current buffer and the buffer under the split.")
+      "w K" '(buf-move-up :wk "Swap the current buffer and the buffer above the split.")
 
       ;; file
-      "f"   '(:ignore t :wk "file operation")
-      "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "edit config.org")
-      "f u" '(sudo-edit-find-file :wk "sudo find file")
-      "f U" '(sudo-edit :wk "sudo edit file")
-      "SPC SPC" '(find-file :wk "find file")
+      "f"   '(:ignore t :wk "File Operations")
+      "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "edit config.org.")
+      "f u" '(sudo-edit-find-file :wk "Edit FILENAME as another user, by default 'sudo-edit-user'.")
+      "f U" '(sudo-edit :wk "Edit currently visited file as another user, by default 'sudo-edit-user'.")
+      "SPC SPC" '(find-file :wk "Edit file FILENAME.")
 
-      "l "  '(:ignore t :wk "coding language server functions")
-      "l f" '(eglot-format-buffer :wk "format current buffer")
-      "l r" '(eglot-rename :wk "rename current symbol")
-      "l a" '(eglot-code-actions :wk "code actions")
-      "l e" '(consult-flymake :wk "list errors in buffer")
-      "l n" '(flymake-goto-next-error :wk "next error")
-      "l p" '(flymake-goto-prev-error :wk "previous error")
+      "l "  '(:ignore t :wk "LSP Operations")
+      "l f" '(eglot-format-buffer :wk "Format contents of current buffer.")
+      "l r" '(eglot-rename :wk "Rename the current symbol to NEWNAME.")
+      "l a" '(eglot-code-actions :wk "Find LSP code action of type ACTION-KIND between BEG and END.")
+      "l e" '(consult-flymake :wk "Jump to Flymake diagnostic.")
+      "l n" '(flymake-goto-next-error :wk "Go to Nth next Flymake diagnostic that matches FILTER.")
+      "l n" '(flymake-goto-prev-error :wk "Go to Nth previous Flymake diagnostic that matches FILTER.")
+
+      "c "  '(:ignore t :wk "Consult Operations")
+      "c r" '(consult-ripgrep :wk "Search with 'rg' for files in DIR with INITIAL input.")
+      "c f" '(consult-fd :wk "Search for files with 'fd' in DIR.")
+      "c l" '(consult-goto-line :wk "Read line number and jump to the line with preview.")
 
       ;; shell and terminal 
-      "t"   '(:ignore t :wk "shell and terminal")
-      "t v" '(vterm-toggle :wk "vterm toggle")
-      "t t" '(neotree-toggle :wk "neotree toggle")
-      "t T" '(eshell :wk "eshell"))
+      "t"   '(:ignore t :wk "Terminal and Shell Functions")
+      "t v" '(vterm-toggle :wk "Vterm toggle.")
+      "t t" '(neotree-toggle :wk "Toggle show the NeoTree window.")
+      "t T" '(eshell :wk "Creat an interactive Eshell buffer."))
 
     ;; eshell
     (general-define-key
