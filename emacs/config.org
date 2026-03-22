@@ -124,8 +124,16 @@ Basic interface adjustments that remove unnessary elements and keep the UI minim
   (global-display-line-numbers-mode t) 
   (setq inhibit-startup-screen t)
   (global-font-lock-mode t)
-#+end_src
 
+  ;; tab settings
+  (setq-default tab-always-indent nil)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tabs-width 4)
+  (setq-default c-basic-offset 4)
+  (setq-default c-default-style "linux")
+
+#+end_src
+                
 ** Backup and Auto-Save
 
 These settings disable Emacs' automatic backup and auto-save mechanisms.
@@ -780,15 +788,24 @@ which-key package for keymap description.
       "SPC SPC" '(find-file :wk "Edit file FILENAME.")
 
       "l "  '(:ignore t :wk "LSP Operations")
+      "l d" '(xref-find-definitions :wk "Find the definition of the identifier at the point.")
+      "l r" '(xref-find-references :wk "Find the references of the identifier at the point.")
       "l f" '(eglot-format-buffer :wk "Format contents of current buffer.")
       "l r" '(eglot-rename :wk "Rename the current symbol to NEWNAME.")
       "l a" '(eglot-code-actions :wk "Find LSP code action of type ACTION-KIND between BEG and END.")
       "l e" '(consult-flymake :wk "Jump to Flymake diagnostic.")
       "l n" '(flymake-goto-next-error :wk "Go to Nth next Flymake diagnostic that matches FILTER.")
-      "l n" '(flymake-goto-prev-error :wk "Go to Nth previous Flymake diagnostic that matches FILTER.")
+      "l p" '(flymake-goto-prev-error :wk "Go to Nth previous Flymake diagnostic that matches FILTER.")
+
+      "p "  '(:ignore t :wk "Project Operations")
+      "p c" '(projectile-compile-project :wk "Run project compilation command.")
+      "p r" '(projectile-run-project :wk "Run project run command.")
+      "p p" '(projectile-switch-project :wk "Switch to a project we have visited before.")
+      "p k" '(projectile-kill-buffers :wk "Keil project buffers.")
 
       "c "  '(:ignore t :wk "Consult Operations")
       "c r" '(consult-ripgrep :wk "Search with 'rg' for files in DIR with INITIAL input.")
+      "c s" '(consult-line :wk "Search for a matching lines.")
       "c f" '(consult-fd :wk "Search for files with 'fd' in DIR.")
       "c l" '(consult-goto-line :wk "Read line number and jump to the line with preview.")
 
@@ -851,6 +868,7 @@ Enabling org bullets
     :config
     (setq markdown-fontify-code-blocks-natively t))
 #+end_src
+
 
 
 
