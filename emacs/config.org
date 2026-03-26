@@ -27,6 +27,7 @@
   - [[#consult][Consult]]
   - [[#savehist][Savehist]]
 - [[#lsp-and-programming-support][LSP AND PROGRAMMING SUPPORT]]
+  - [[#language-support][Language Support]]
   - [[#eglot][Eglot]]
   - [[#eldoc-box][Eldoc-box]]
   - [[#flymake][Flymake]]
@@ -54,6 +55,7 @@
   - [[#evil][Evil]]
   - [[#evil-collection][Evil-collection]]
   - [[#evil-escape][Evil-escape]]
+  - [[#evil-numbers][Evil-Numbers]]
 - [[#general][GENERAL]]
 - [[#document][DOCUMENT]]
   - [[#org-mode][ORG-MODE]]
@@ -125,12 +127,12 @@ Basic interface adjustments that remove unnessary elements and keep the UI minim
   (setq inhibit-startup-screen t)
   (global-font-lock-mode t)
 
-  ;; tab settings
-  (setq-default tab-always-indent nil)
-  (setq-default indent-tabs-mode nil)
-  (setq-default tabs-width 4)
-  (setq-default c-basic-offset 4)
-  (setq-default c-default-style "linux")
+  ;; colorful log support
+  (require 'ansi-color)
+  (add-hook 'compilation-filter-hook
+            (lambda ()
+              (when (eq major-mode 'compilation-mode)
+                (ansi-color-apply-on-region compilation-filter-start (point-max)))))
 
 #+end_src
                 
@@ -242,9 +244,11 @@ support for blocks such as functions, structs, and conditionals.
   (use-package orderless
     :ensure t
     :custom
-    (completion-styles '(orderless basic))
-    (completion-category-defaults nil)
-    (completion-category-overrides '((file (styles . (partial-completion orderless))))))
+    (completion-styles '(basic orderless)) 
+    (setq completion-category-overrides 
+  	'((eglot (styles . (basic orderless))) 
+            (file (styles . (basic partial-completion orderless))))))
+
 #+end_src
 ** Marginalia
 #+begin_src emacs-lisp
@@ -258,23 +262,41 @@ support for blocks such as functions, structs, and conditionals.
 #+begin_src emacs-lisp
   (use-package corfu
     :ensure t
-    :init
-    (global-corfu-mode)
     :custom
-    (corfu-auto t)                 
-    (corfu-auto-delay 0.1)         
-    (corfu-auto-prefix 1)          
-    (corfu-cycle t)                
-    (corfu-quit-at-boundary 'separator))
+    (corfu-auto t)
+    (corfu-auto-delay 0.0)        
+    (corfu-auto-prefix 1)         
+    (corfu-preview-current nil)   
+    (corfu-preselect 'first)      
+    (corfu-quit-at-boundary nil)  
+    (corfu-quit-no-match t)       
+    (corfu-on-exact-match nil)    
+    :init
+    (global-corfu-mode))
+
+  (use-package corfu-terminal
+    :ensure t
+    :after corfu
+    :config
+    (corfu-terminal-mode 1))
 #+end_src
+
 ** Cape
 #+begin_src emacs-lisp
   (use-package cape
     :ensure t
     :init
-    (add-to-list 'completion-at-point-functions #'cape-file)      
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)   
-    (add-to-list 'completion-at-point-functions #'cape-keyword))  
+    (add-hook 'eglot-managed-mode-hook
+              (lambda ()
+                (setq-local completion-at-point-functions
+                            (list (cape-capf-super
+                                   (cape-capf-buster #'eglot-completion-at-point)
+                                   #'cape-dabbrev
+                                   #'cape-file)))))
+    :config
+    ;; 确保这些后端是可用的
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-file))
 #+end_src
 ** Kind-icon
 #+begin_src emacs-lisp
@@ -308,29 +330,56 @@ support for blocks such as functions, structs, and conditionals.
     (savehist-mode))
 #+end_src
 * LSP AND PROGRAMMING SUPPORT
+** Language Support
+*** Treesitter
+#+begin_src emacs-lisp
+  (setq major-mode-remap-alist
+        '((c-mode . c-ts-mode)
+  	(c++-mode . c++-ts-mode)
+  	(cmake-mode . cmake-ts-mode)
+  	(python-mode . python-ts-mode)))
+#+end_src
+*** cmake
+#+begin_src emacs-lisp
+  (use-package cmake-mode
+    :ensure t)
+#+end_src
+*** python
+#+begin_src emacs-lisp
+  (use-package python-mode
+    :ensure t)
+  (use-package pyvenv
+    :ensure t)
+#+end_src
+*** yaml
+#+begin_src emacs-lisp
+  (use-package yaml-mode
+    :ensure t)
+
+  ;; clangd config files
+  (add-to-list 'auto-mode-alist '("\\.clangd\\'" . yaml-mode))
+#+end_src
 ** Eglot
 #+begin_src emacs-lisp
   (use-package eglot
-    :ensure nil
-    :hook ((python-mode . eglot-ensure)
-           (c-mode . eglot-ensure)
-           (c++-mode . eglot-ensure)
-           (rust-mode . eglot-ensure))
+    :ensure nil 
+    :hook
+    ((c-ts-mode . eglot-ensure)
+     (c++-ts-mode . eglot-ensure)
+     (python-ts-mode . eglot-ensure)
+     (cmake-ts-mode . eglot-ensure))
     :config
-    ;; 允许 eldoc 显示多行详细信息，这是弹出丰富文档的前提
-    (setq eldoc-echo-area-use-multiline-p t)
-    
-    ;; 优化：当 Eglot 激活时，合并补全源
-    (add-hook 'eglot-managed-mode-hook
-              (lambda ()
-                (setq-local completion-at-point-functions
-                            (list (cape-capf-super
-                                   #'eglot-completion-at-point
-                                   #'cape-dabbrev
-                                   #'cape-file))))))
-
+    (setq completion-category-overrides '((eglot (styles . (orderless))))))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 `((c-ts-mode c++-ts-mode) .
+                   ("clangd" 
+                    "--header-insertion=never" 
+                    "--all-scopes-completion" 
+                    "--completion-style=detailed"
+                    "--function-arg-placeholders"
+                    "--header-insertion-decorators=0"))))
 #+end_src
-
 ** Eldoc-box
 
 #+begin_src emacs-lisp
@@ -339,6 +388,7 @@ support for blocks such as functions, structs, and conditionals.
     ;; 关键：必须添加这个钩子，才能在 eglot 管理的 buffer 里自动弹出浮窗
     :hook (eglot-managed-mode . eldoc-box-hover-at-point-mode)
     :config
+    (setq eldoc-idle-delay 0.8)
     (setq eldoc-box-child-frame-parameters
           '((left-fringe . 8)
             (right-fringe . 8)
@@ -725,6 +775,19 @@ which-key package for keymap description.
           evil-escape-delay 0.15))
 #+end_src
 
+** Evil-Numbers
+#+begin_src emacs-lisp
+(use-package evil-numbers
+  :ensure t
+  :after evil
+  :bind
+  (:map evil-normal-state-map
+        ("C-a" . evil-numbers/inc-at-pt)
+        ("C-x" . evil-numbers/dec-at-pt))
+  (:map evil-visual-state-map
+        ("C-a" . evil-numbers/inc-at-pt)
+        ("C-x" . evil-numbers/dec-at-pt)))
+#+end_src
 * GENERAL
 #+begin_src emacs-lisp
   (use-package general
@@ -791,7 +854,7 @@ which-key package for keymap description.
       "l d" '(xref-find-definitions :wk "Find the definition of the identifier at the point.")
       "l r" '(xref-find-references :wk "Find the references of the identifier at the point.")
       "l f" '(eglot-format-buffer :wk "Format contents of current buffer.")
-      "l r" '(eglot-rename :wk "Rename the current symbol to NEWNAME.")
+      "l R" '(eglot-rename :wk "Rename the current symbol to NEWNAME.")
       "l a" '(eglot-code-actions :wk "Find LSP code action of type ACTION-KIND between BEG and END.")
       "l e" '(consult-flymake :wk "Jump to Flymake diagnostic.")
       "l n" '(flymake-goto-next-error :wk "Go to Nth next Flymake diagnostic that matches FILTER.")
