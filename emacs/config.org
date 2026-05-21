@@ -15,7 +15,6 @@
 - [[#basic-function][BASIC FUNCTION]]
   - [[#editing-behavior][Editing Behavior]]
   - [[#default-browser][Default Browser]]
-  - [[#code-folding][Code Folding]]
 - [[#completion-framework][COMPLETION FRAMEWORK]]
   - [[#vertico][Vertico]]
   - [[#orderless][Orderless]]
@@ -27,7 +26,9 @@
   - [[#consult][Consult]]
   - [[#savehist][Savehist]]
 - [[#lsp-and-programming-support][LSP AND PROGRAMMING SUPPORT]]
+  - [[#treesit][Treesit]]
   - [[#language-support][Language Support]]
+  - [[#major-mode][major-mode]]
   - [[#eglot][Eglot]]
   - [[#eldoc-box][Eldoc-box]]
   - [[#flymake][Flymake]]
@@ -36,6 +37,7 @@
   - [[#doom-themes][Doom-themes]]
   - [[#doom-modeline][Doom-modeline]]
   - [[#dashboard][Dashboard]]
+  - [[#ligature][Ligature]]
 - [[#file--project-management][FILE & PROJECT MANAGEMENT]]
   - [[#projectile][Projectile]]
   - [[#neotree][Neotree]]
@@ -55,7 +57,8 @@
   - [[#evil][Evil]]
   - [[#evil-collection][Evil-collection]]
   - [[#evil-escape][Evil-escape]]
-  - [[#evil-numbers][Evil-Numbers]]
+  - [[#evil-numbers][Evil-numbers]]
+  - [[#evil-surround][Evil-surround]]
 - [[#general][GENERAL]]
 - [[#document][DOCUMENT]]
   - [[#org-mode][ORG-MODE]]
@@ -110,6 +113,7 @@ so that `use-package` integrates seamlessly with Elpaca.
   (elpaca elpaca-use-package
     ;; Enable use-package :ensure support for Elpaca.
     (elpaca-use-package-mode))
+  (elpaca compat)
 #+end_src
 
 * BASIC UI CONFIGURATION
@@ -134,6 +138,9 @@ Basic interface adjustments that remove unnessary elements and keep the UI minim
               (when (eq major-mode 'compilation-mode)
                 (ansi-color-apply-on-region compilation-filter-start (point-max)))))
 
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb
+  (setq gc-cons-threshold (* 100 1024 1024))   ;; 100mb
+  (setq lsp-use-plists t)
 #+end_src
                 
 ** Backup and Auto-Save
@@ -176,7 +183,7 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
   ;; I use Maple Mono NF CN
   (defun emacs_basic_settings/setup-fonts ()
     (set-face-attribute 'default nil
-  		      :font "JetBrains Mono Nerd Font"
+  		      :font "Maple Mono NF CN"
   		      :height 120
   		      :weight 'medium)
     (set-fontset-font t 'han (font-spec
@@ -210,6 +217,7 @@ Enable useful built‑in behaviors that improve the editing experience.
 #+begin_src emacs-lisp
   (save-place-mode 1)        ;; remember cursor position in files
   (electric-pair-mode 1)     ;; automatically insert matching brackets
+(add-hook 'prog-mode-hook #'hs-minor-mode)
 #+end_src
 
 ** Default Browser
@@ -221,14 +229,6 @@ Configuration the external browser used by `browse-url`.
   (setq browse-url-generic-program "qutebrowser")
 #+end_src
 
-** Code Folding
-
-Enable `hs-minor-mode` in programming modes to provide simple code folding
-support for blocks such as functions, structs, and conditionals.
-
-#+begin_src emacs-lisp
-  (add-hook 'prog-mode-hook #'hs-minor-mode)
-#+end_src
 * COMPLETION FRAMEWORK
 ** Vertico
 #+begin_src emacs-lisp
@@ -241,14 +241,13 @@ support for blocks such as functions, structs, and conditionals.
 #+end_src
 ** Orderless
 #+begin_src emacs-lisp
-  (use-package orderless
-    :ensure t
-    :custom
-    (completion-styles '(basic orderless)) 
-    (setq completion-category-overrides 
-  	'((eglot (styles . (basic orderless))) 
-            (file (styles . (basic partial-completion orderless))))))
-
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides
+   '((file (styles . (basic partial-completion orderless)))
+     (eglot (styles . (orderless basic))))))
 #+end_src
 ** Marginalia
 #+begin_src emacs-lisp
@@ -280,24 +279,23 @@ support for blocks such as functions, structs, and conditionals.
     :config
     (corfu-terminal-mode 1))
 #+end_src
-
 ** Cape
 #+begin_src emacs-lisp
   (use-package cape
-    :ensure t
-    :init
-    (add-hook 'eglot-managed-mode-hook
-              (lambda ()
-                (setq-local completion-at-point-functions
-                            (list (cape-capf-super
-                                   (cape-capf-buster #'eglot-completion-at-point)
-                                   #'cape-dabbrev
-                                   #'cape-file)))))
-    :config
-    ;; 确保这些后端是可用的
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions #'cape-file))
+     :ensure t
+     :init
+     (add-hook 'completion-at-point-functions #'cape-dabbrev)
+     (add-hook 'completion-at-point-functions #'cape-file))
+
+  (defun ds/cape-capf-setup ()
+    (setq-local completion-at-point-functions
+                (list
+                  #'eglot-completion-at-point
+                  #'cape-dabbrev
+                  #'cape-file)))
+  (add-hook 'eglot-managed-mode-hook #'ds/cape-capf-setup)
 #+end_src
+
 ** Kind-icon
 #+begin_src emacs-lisp
   (use-package kind-icon
@@ -330,25 +328,26 @@ support for blocks such as functions, structs, and conditionals.
     (savehist-mode))
 #+end_src
 * LSP AND PROGRAMMING SUPPORT
-** Language Support
-*** Treesitter
+** Treesit
+*** treesit-auto
 #+begin_src emacs-lisp
-  (setq major-mode-remap-alist
-        '((c-mode . c-ts-mode)
-  	(c++-mode . c++-ts-mode)
-  	(cmake-mode . cmake-ts-mode)
-  	(python-mode . python-ts-mode)))
+  (use-package treesit-auto
+    :ensure t
+    :custom
+    (treesit-auto-install 'prompt) ; 如果没有对应的语法，打开文件时会弹窗提示一键自动编译下载
+    :config
+    (global-treesit-auto-mode))
+  (setq treesit-font-lock-level 4)
 #+end_src
+*** treesit-abi-version
+#+begin_src emacs-lisp
+  (setq treesit-language-source-alist
+        '((c "https://github.com/tree-sitter/tree-sitter-c" "v0.21.3")))
+#+end_src
+** Language Support
 *** cmake
 #+begin_src emacs-lisp
   (use-package cmake-mode
-    :ensure t)
-#+end_src
-*** python
-#+begin_src emacs-lisp
-  (use-package python-mode
-    :ensure t)
-  (use-package pyvenv
     :ensure t)
 #+end_src
 *** yaml
@@ -358,6 +357,19 @@ support for blocks such as functions, structs, and conditionals.
 
   ;; clangd config files
   (add-to-list 'auto-mode-alist '("\\.clangd\\'" . yaml-mode))
+#+end_src
+*** Rust
+#+begin_src emacs-lisp
+  (use-package rust-mode
+    :ensure t)
+#+end_src
+** major-mode
+#+begin_src emacs-lisp
+  (setq major-mode-remap-alist
+        '((c-mode . c-ts-mode)
+          (c++-mode . c++-ts-mode)
+          (python-mode . python-ts-mode)
+          (cmake-mode . cmake-ts-mode)))
 #+end_src
 ** Eglot
 #+begin_src emacs-lisp
@@ -370,15 +382,27 @@ support for blocks such as functions, structs, and conditionals.
      (cmake-ts-mode . eglot-ensure))
     :config
     (setq completion-category-overrides '((eglot (styles . (orderless))))))
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs
-                 `((c-ts-mode c++-ts-mode) .
-                   ("clangd" 
-                    "--header-insertion=never" 
-                    "--all-scopes-completion" 
+#+end_src
+*** LSP parameters
+**** clangd
+#+begin_src emacs-lisp
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '((c-ts-mode c++-ts-mode)
+                 . ("clangd"
+                    "--header-insertion=never"
                     "--completion-style=detailed"
                     "--function-arg-placeholders"
-                    "--header-insertion-decorators=0"))))
+                    "--clang-tidy"
+                    "--cross-file-rename"))))
+#+end_src
+
+*** GDB
+#+begin_src emacs-lisp
+  (setq gdb-many-windows t)
+  (setq gdb-show-changed-values t)
+  (setq gdb-max-source-window-count t)
+  (add-hook 'gdb-mode-hook '(lambda () (gud-tooltip-mode 1)))
 #+end_src
 ** Eldoc-box
 
@@ -429,18 +453,26 @@ support for blocks such as functions, structs, and conditionals.
 ** Doom-themes
 
 #+begin_src emacs-lisp
-  (use-package doom-themes
-    :ensure t
-    :config
-    (setq doom-themes-visual-bell nil
-  	doom-modeline-enable-visual-bell nil
-  	doom-themes-enable-bold t
-  	doom-themes-enable-italic t)
-    (load-theme 'doom-tokyo-night t)
-    (doom-themes-org-config))
+    (use-package doom-themes
+      :ensure t
+      :config
+      (setq doom-themes-visual-bell nil
+        	doom-modeline-enable-visual-bell nil
+        	doom-themes-enable-bold t
+        	doom-themes-enable-italic t)
+      (load-theme 'doom-gruvbox t)
+      (doom-themes-org-config)
+      (doom-themes-org-config))
+
+  (custom-set-faces
+   '(font-lock-type-face ((t (:italic t))))
+   '(font-lock-keyword-face ((t (:italic t))))
+   '(font-lock-comment-face ((t (:italic t))))
+   '(font-lock-doc-face ((t (:italic t)))))
 #+end_src
 
 ** Doom-modeline
+
 #+begin_src emacs-lisp
   (use-package doom-modeline
     :ensure t
@@ -474,6 +506,15 @@ support for blocks such as functions, structs, and conditionals.
     (dashboard-setup-startup-hook))
 #+end_src
 
+** Ligature
+#+begin_src emacs-lisp
+  (use-package ligature
+    :ensure t 
+    :config
+    ;; 为所有编程模式开启连字
+    (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "->" "=>" "++"))
+    (global-ligature-mode t))
+#+end_src
 * FILE & PROJECT MANAGEMENT
 ** Projectile
 #+begin_src emacs-lisp
@@ -482,6 +523,14 @@ support for blocks such as functions, structs, and conditionals.
     :diminish
     :config
     (projectile-mode 1))
+  (add-to-list 'display-buffer-alist
+               '("\\*compilation\\*"
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (reusable-frames . nil)
+                 (window-height . 0.4)))
+  (with-eval-after-load 'projectile
+    (setq projectile-project-root-files-bottom-up
+  	(delete "CMakeLists.txt" projectile-project-root-files-bottom-up)))
 #+end_src
 
 ** Neotree
@@ -490,7 +539,7 @@ support for blocks such as functions, structs, and conditionals.
   (use-package neotree
     :ensure t
     :config
-    (setq neo-window-width 32)
+    (setq neo-window-width 42)
     (setq neo-theme 'nerd-icons) 
     (setq neo-smart-open t)
     (setq neo-window-fixed-size nil) 
@@ -601,7 +650,7 @@ By default, the shell is set to 'zsh'.
                    (direction . bottom)
                    (dedicated . t) ;dedicated is supported in emacs27
                    (reusable-frames . visible)
-                   (window-height . 0.35))))
+                   (window-height . 0.20))))
 #+end_src
 * GIT & VERSION CONTROL
 ** Magit
@@ -775,18 +824,23 @@ which-key package for keymap description.
           evil-escape-delay 0.15))
 #+end_src
 
-** Evil-Numbers
+** Evil-numbers
 #+begin_src emacs-lisp
-(use-package evil-numbers
-  :ensure t
-  :after evil
-  :bind
-  (:map evil-normal-state-map
-        ("C-a" . evil-numbers/inc-at-pt)
-        ("C-x" . evil-numbers/dec-at-pt))
-  (:map evil-visual-state-map
-        ("C-a" . evil-numbers/inc-at-pt)
-        ("C-x" . evil-numbers/dec-at-pt)))
+  (use-package evil-numbers
+    :ensure t
+    :after evil
+    :bind
+    (:map evil-normal-state-map
+          ("C-a" . evil-numbers/inc-at-pt)
+          ("C-x" . evil-numbers/dec-at-pt))
+    (:map evil-visual-state-map
+          ("C-a" . evil-numbers/inc-at-pt)
+          ("C-x" . evil-numbers/dec-at-pt)))
+#+end_src
+** Evil-surround
+#+begin_src emacs-lisp
+  (use-package evil-surround
+    :ensure t)
 #+end_src
 * GENERAL
 #+begin_src emacs-lisp
@@ -856,6 +910,7 @@ which-key package for keymap description.
       "l f" '(eglot-format-buffer :wk "Format contents of current buffer.")
       "l R" '(eglot-rename :wk "Rename the current symbol to NEWNAME.")
       "l a" '(eglot-code-actions :wk "Find LSP code action of type ACTION-KIND between BEG and END.")
+      "l t" '(eglot-inlay-hints-mode :wk "Eglot inlay hints.")
       "l e" '(consult-flymake :wk "Jump to Flymake diagnostic.")
       "l n" '(flymake-goto-next-error :wk "Go to Nth next Flymake diagnostic that matches FILTER.")
       "l p" '(flymake-goto-prev-error :wk "Go to Nth previous Flymake diagnostic that matches FILTER.")
