@@ -3,67 +3,6 @@
 #+AUTHOR: Disen-Shaw (DS)
 #+STARTUP: content
 
-* TABLE OF DOC :toc:
-- [[#elpaca-package-manager][ELPACA PACKAGE MANAGER]]
-- [[#basic-ui-configuration][BASIC UI CONFIGURATION]]
-  - [[#basic-ui][Basic UI]]
-  - [[#backup-and-auto-save][Backup and Auto-Save]]
-  - [[#bell-notifications][Bell Notifications]]
-  - [[#scrolling-behavior][Scrolling Behavior]]
-  - [[#cursor][Cursor]]
-  - [[#fonts][FONTS]]
-- [[#basic-function][BASIC FUNCTION]]
-  - [[#editing-behavior][Editing Behavior]]
-  - [[#default-browser][Default Browser]]
-- [[#completion-framework][COMPLETION FRAMEWORK]]
-  - [[#vertico][Vertico]]
-  - [[#orderless][Orderless]]
-  - [[#marginalia][Marginalia]]
-  - [[#corfu][Corfu]]
-  - [[#cape][Cape]]
-  - [[#kind-icon][Kind-icon]]
-  - [[#nerd-icons-completion][Nerd-icons-completion]]
-  - [[#consult][Consult]]
-  - [[#savehist][Savehist]]
-- [[#lsp-and-programming-support][LSP AND PROGRAMMING SUPPORT]]
-  - [[#treesit][Treesit]]
-  - [[#language-support][Language Support]]
-  - [[#major-mode][major-mode]]
-  - [[#eglot][Eglot]]
-  - [[#eldoc-box][Eldoc-box]]
-  - [[#flymake][Flymake]]
-- [[#ui-packages][UI PACKAGES]]
-  - [[#nerd-icons][NERD-ICONS]]
-  - [[#doom-themes][Doom-themes]]
-  - [[#doom-modeline][Doom-modeline]]
-  - [[#dashboard][Dashboard]]
-  - [[#ligature][Ligature]]
-- [[#file--project-management][FILE & PROJECT MANAGEMENT]]
-  - [[#projectile][Projectile]]
-  - [[#neotree][Neotree]]
-  - [[#dired][Dired]]
-- [[#terminal--shell][TERMINAL & SHELL]]
-  - [[#eshell][Eshell]]
-  - [[#vterm][Vterm]]
-- [[#git--version-control][GIT & VERSION CONTROL]]
-  - [[#magit][Magit]]
-- [[#utility-packages][UTILITY PACKAGES]]
-  - [[#diminish][Diminish]]
-  - [[#sudo-edit][sudo-edit]]
-  - [[#which-key][Which-key]]
-  - [[#popon][Popon]]
-  - [[#buffer-move][Buffer-move]]
-- [[#evil-mode][EVIL MODE]]
-  - [[#evil][Evil]]
-  - [[#evil-collection][Evil-collection]]
-  - [[#evil-escape][Evil-escape]]
-  - [[#evil-numbers][Evil-numbers]]
-  - [[#evil-surround][Evil-surround]]
-- [[#general][GENERAL]]
-- [[#document][DOCUMENT]]
-  - [[#org-mode][ORG-MODE]]
-  - [[#markdown-mode][MARKDOWN-MODE]]
-
 * ELPACA PACKAGE MANAGER
 
 Elpaca is used as the package manager for this Configuration.
@@ -115,52 +54,41 @@ so that `use-package` integrates seamlessly with Elpaca.
     (elpaca-use-package-mode))
   (elpaca compat)
 #+end_src
-
-* BASIC UI CONFIGURATION
-
-** Basic UI
+* BASIC SETTINGS
 
 Basic interface adjustments that remove unnessary elements and keep the UI minimal.
 
+** FRAME UI
+
+Adjust some of the FRAME UI configurations to a more coder-friendly mode :)
+
+*** BASIC
+
+Basic UI configurations.
+
 #+begin_src emacs-lisp
+
+  ;; disable menu bar
   (menu-bar-mode -1)
+
+  ;; disable tool bar
   (tool-bar-mode -1)
+
+  ;; disable scroll bar
   (scroll-bar-mode -1)
-  (setq display-line-numbers-type 't) 
-  (global-display-line-numbers-mode t) 
+
+  ;; disable startup screen
   (setq inhibit-startup-screen t)
-  (global-font-lock-mode t)
 
-  ;; colorful log support
-  (require 'ansi-color)
-  (add-hook 'compilation-filter-hook
-            (lambda ()
-              (when (eq major-mode 'compilation-mode)
-                (ansi-color-apply-on-region compilation-filter-start (point-max)))))
+  ;; line numbers type 
+  (setq display-line-numbers-type 't) 
 
-  (setq read-process-output-max (* 1024 1024)) ;; 1mb
-  (setq gc-cons-threshold (* 100 1024 1024))   ;; 100mb
-  (setq lsp-use-plists t)
-#+end_src
-                
-** Backup and Auto-Save
+  ;; global display line number
+  (global-display-line-numbers-mode t) 
 
-These settings disable Emacs' automatic backup and auto-save mechanisms.
-
-#+begin_src emacs-lisp
-  (setq make-backup-files nil)
-  (setq auto-save-default nil)
 #+end_src
 
-** Bell Notifications
-
-Disable all audible and visual bell notifications for a quieter editing experience.
-
-#+begin_src emacs-lisp
-  (setq ring-bell-function 'ignore)
-#+end_src
-
-** Scrolling Behavior
+*** SCROLLING
 
 These settings provide smoother and more predictable scrolling by keeping a margin around the cursor and preventing sudden recentering.
 
@@ -169,27 +97,18 @@ These settings provide smoother and more predictable scrolling by keeping a marg
   (setq scroll-conservatively 101)
 #+end_src
 
-** Cursor
-
-Hide the mouse pointer while typing to keep the editing area unobstructed.
+*** FONTS
 
 #+begin_src emacs-lisp
-  (setq make-pointer-invisible t)
-#+end_src
-
-** FONTS
-
-#+begin_src emacs-lisp
-  ;; I use Maple Mono NF CN
-  (defun emacs_basic_settings/setup-fonts ()
+  (defun ds/setup-fonts ()
     (set-face-attribute 'default nil
-  		      :font "Maple Mono NF CN"
-  		      :height 120
-  		      :weight 'medium)
+    		      :font "Maple Mono NF CN"
+    		      :height 110
+    		      :weight 'medium)
     (set-fontset-font t 'han (font-spec
-  			    :family "Maple Mono NF CN"
-  			    :height 120
-  			    :weight 'medium))
+    			    :family "Maple Mono NF CN"
+    			    :height 110
+    			    :weight 'medium))
     (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji"))
 
     (when (display-graphic-p)
@@ -201,36 +120,426 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
     (setq org-src-fontify-natively t))
   ;; for emacs --daemon server mode 
   (when (display-graphic-p)
-    (emacs_basic_settings/setup-fonts))
+    (ds/setup-fonts))
   (add-hook 'after-make-frame-functions
-  	  (lambda (frame)
-  	    (with-selected-frame frame
-  	      (when (display-graphic-p frame)
-  		(emacs_basic_settings/setup-fonts)))))  
+    	  (lambda (frame)
+    	    (with-selected-frame frame
+    	      (when (display-graphic-p frame)
+    		(ds/setup-fonts)))))  
 #+end_src
 
-* BASIC FUNCTION
-** Editing Behavior
+** DEFAULT BEHAVIOR
+
+*** EDITING
 
 Enable useful built‑in behaviors that improve the editing experience.
 
 #+begin_src emacs-lisp
   (save-place-mode 1)        ;; remember cursor position in files
   (electric-pair-mode 1)     ;; automatically insert matching brackets
-(add-hook 'prog-mode-hook #'hs-minor-mode)
+  (add-hook 'prog-mode-hook #'hs-minor-mode)
 #+end_src
+*** AUTO BACKUP
 
-** Default Browser
-
-Configuration the external browser used by `browse-url`.
+These settings disable Emacs' automatic backup and auto-save mechanisms.
 
 #+begin_src emacs-lisp
-  (setq browse-url-browser-function 'browse-url-generic)
-  (setq browse-url-generic-program "qutebrowser")
+  (setq make-backup-files nil)
+  (setq auto-save-default nil)
 #+end_src
 
+*** BELL NOTIFICATIONS
+
+Disable all audible and visual bell notifications for a quieter editing experience.
+
+#+begin_src emacs-lisp
+  (setq ring-bell-function 'ignore)
+#+end_src
+
+*** CURSOR
+
+Hide the mouse pointer while typing to keep the editing area unobstructed.
+
+#+begin_src emacs-lisp
+  (setq make-pointer-invisible t)
+#+end_src
+
+* UI
+** THEMES
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :ensure t
+    :config
+    (setq doom-themes-visual-bell nil
+        	doom-modeline-enable-visual-bell nil
+        	doom-themes-enable-bold t
+        	doom-themes-enable-italic t)
+    (load-theme 'doom-gruvbox t)
+    (doom-themes-org-config)
+    (doom-themes-org-config))
+
+  (custom-set-faces
+   '(font-lock-type-face ((t (:italic t))))
+   '(font-lock-keyword-face ((t (:italic t))))
+   '(font-lock-comment-face ((t (:italic t))))
+   '(font-lock-doc-face ((t (:italic t)))))
+#+end_src
+** DOOM-MODELINE
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1)
+    :config
+    (setq doom-modeline-height 30)
+    (setq doom-modeline-icon-padding 0.15)
+    (setq doom-modeline-icon-scale 0.5)
+    (setq doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
+#+end_src
+** NERD-ICONS
+#+begin_src emacs-lisp
+  (use-package nerd-icons
+    :ensure t)
+#+end_src
+** LIGATURE
+#+begin_src emacs-lisp
+  (use-package ligature
+    :ensure t 
+    :config
+    (ligature-set-ligatures 'prog-mode 
+                            '("||" "&&" "==" "===" "!=" "!==" "=>" "->" "<-" "<=" ">="
+                              "++" "--" "**" "***" "::" "::=" "=:=" "==" "/*" "*/" "//"
+                              "!!" "??" "||=" "&&=" "?=" "=~" "!~"
+                              "<~" "<~>" "~>" "_|_" "||>" "|>" "<|" "<|>" "<$" ">$"
+                              "<$>" "==>" "===>" "<== " "<===" "<=>" "<==>" "##" "###" "####"
+                              "##|" "[| " " |]" "{|" " |}" "+++" "##=" ".-" ".=" "=:"))
+    
+    (global-ligature-mode t))
+#+end_src
+* EVIL
+** EVIL-MODE
+#+begin_src emacs-lisp
+  (use-package evil
+    :ensure t
+    :init 
+    (setq evil-want-keybinding nil)
+    (setq evil-want-integration t)
+    :demand t
+    :config
+    (evil-define-motion ds/evil/move-down-5-lines (count)
+      "Move down 5 lines."
+      :type line
+      (evil-next-line (or count 5)))
+    (evil-define-motion ds/evil/move-up-5-lines (count)
+      "Move down 5 lines."
+      :type line
+      (evil-previous-line (or count 5)))
+    (evil-define-motion ds/evil/move-beginning-of-line ()
+      "Move to beginning of current line."
+      :type exclusive
+      (evil-first-non-blank))
+    (evil-define-motion ds/evil/move-end-of-line ()
+      "Move to end of current line."
+      :type exclusive
+      (evil-end-of-line))
+    (evil-mode 1))
+#+end_src
+** EVIL-ESCAPE
+#+begin_src emacs-lisp
+  (use-package evil-escape
+    :ensure t
+    :after evil
+    :config
+    (evil-escape-mode)
+    (setq evil-escape-key-sequence "jk"
+          evil-escape-delay 0.15))
+#+end_src
+** EVIL-COLLECTION
+#+begin_src emacs-lisp
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :config
+    (evil-collection-init))
+#+end_src
+** EVIL-NUMBERS
+#+begin_src emacs-lisp
+  (use-package evil-numbers
+    :ensure t
+    :after evil
+    :bind
+    (:map evil-normal-state-map
+  	("C-a" . evil-numbers/inc-at-pt)
+  	("C-x" . evil-numbers/dec-at-pt))
+    (:map evil-visual-state-map
+  	("C-a" . evil-numbers/inc-at-pt)
+  	("C-x" . evil-numbers/dec-at-pt)))
+#+end_src
+* UTILS
+** DASHBOARD
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :init
+    (setq initial-buffer-choice 'dashboard-open)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-banner-logo-title "happy coding!")
+    (setq dashboard-startup-banner 3)
+    (setq dashboard-center-content t)
+    (setq dashboard-projects-backend 'projectile)
+    (progn
+      (setq dashboard-items '((recents . 8)
+  			    (projects . 6))))
+    :custom
+    (dashboard-modify-heading-icons '((recents . "file-text")
+  				    (bookmarks . "book")))
+    :config
+    (dashboard-setup-startup-hook))
+#+end_src
+** NEOTREE
+#+begin_src emacs-lisp
+  (use-package neotree
+    :ensure t
+    :config
+    (setq neo-window-width 42)
+    (setq neo-theme 'nerd-icons) 
+    (setq neo-smart-open t)
+    (setq neo-window-fixed-size nil) 
+    (setq neo-show-hidden-files t)
+    (setq neo-autorefresh nil))
+#+end_src
+** MAGIT
+
+Magit is the best interface to the version control system 'Git'.
+
+#+begin_src emacs-lisp
+  (use-package transient
+    :ensure t)
+
+  (use-package magit
+    :ensure t)
+#+end_src
+** PROJECTILE
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :config
+    (projectile-mode 1))
+  (add-to-list 'display-buffer-alist
+               '("\\*compilation\\*"
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (reusable-frames . nil)
+                 (window-height . 0.4)))
+#+end_src
+** DIRED
+#+begin_src emacs-lisp
+  (use-package dired
+    :ensure nil
+    :config
+    (use-package dired-open
+      :ensure t
+      :config
+      (setq dired-open-extensions '(("gif" . "sxiv")
+                                    ("jpg" . "sxiv")
+                                    ("png" . "sxiv")
+                                    ("mkv" . "mpv")
+                                    ("mp4" . "mpv")))))
+
+  (use-package dired
+    :ensure nil
+    :after evil 
+    :config
+    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file))
+
+  (use-package peep-dired
+    :ensure t
+    :after (dired evil)
+    :hook (evil-normalize-keymaps . peep-dired-hook)
+    :config
+    (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
+    (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file))
+#+end_src
+** ESHELL
+#+begin_src emacs-lisp
+  (use-package eshell
+    :ensure nil
+    :after evil
+    :config
+    (evil-set-initial-state 'eshell-mode 'emacs)
+    (with-eval-after-load 'esh-mode
+      (evil-define-key 'insert eshell-mode-map (kbd "<return>") 'eshell-send-input)
+      (evil-define-key 'insert eshell-mode-map (kbd "RET") 'eshell-send-input)))
+
+  (use-package eshell-syntax-highlighting
+    :ensure t
+    :after esh-mode
+    :config
+    (eshell-syntax-highlighting-global-mode +1))
+
+  (setq eshell-history-size 5000
+        eshell-buffer-maximum-lines 5000
+        eshell-hist-ignoredups t
+        eshell-scroll-to-bottom-on-input t
+        eshell-destory-buffer-when-process-dies t
+        eshell-visual-commands '("bash" "fish" "htop" "ssh" "top" "zsh"))
+
+#+end_src
+** VTERM
+
+Vterm is a terminal eemulator within emacs. The 'shell-file-name' setting sets the shell to be used in
+
++ M-x shell
++ M-x term
++ M-x ansi-term
++ M-x vterm
+  
+By default, the shell is set to 'zsh'.
+
+#+begin_src emacs-lisp
+  (use-package vterm
+    :ensure t
+    :init
+    (setq shell-file-name "/bin/zsh"
+  	vterm-max-scrollback 5000))
+
+  (use-package vterm-toggle
+    :ensure t
+    :after vterm
+    :config
+    (setq vterm-toggle-fullscreen-p nil)
+    (setq vterm-toggle-scope 'project)
+    (add-to-list 'display-buffer-alist
+                 '((lambda (buffer-or-name _)
+                     (let ((buffer (get-buffer buffer-or-name)))
+                       (with-current-buffer buffer
+                         (or (equal major-mode 'vterm-mode)
+                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                   (display-buffer-reuse-window display-buffer-at-bottom)
+                   (direction . bottom)
+                   (dedicated . t)
+                   (reusable-frames . visible)
+                   (window-height . 0.30))))
+#+end_src
+** SUDO-EDIT
+#+begin_src emacs-lisp
+  (use-package sudo-edit
+    :ensure t)
+#+end_src
+** WITCH-KEY
+
+'which-key' package for keymap description.
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init 
+    (which-key-mode 1)
+    :config
+    (setq which-key-side-window-location 'bottom
+  	which-key-sort-order #'which-key-key-order
+  	which-key-allow-imprecise-window-fit nil
+  	which-key-sort-uppercase-first nil
+  	which-key-add-column-padding 1
+  	which-key-max-display-columns nil
+  	which-key-min-display-lines 6
+  	which-key-side-window-slot -10
+  	which-key-side-window-max-height 0.5
+  	which-key-idle-delay 0.8
+  	which-key-max-description-length 100
+  	which-key-allow-imprecise-window-fit nil
+  	which-key-separator " → " ))
+#+end_src
+** POPON
+#+begin_src emacs-lisp
+  (use-package popon
+    :ensure t)
+#+end_src
+** BUFFER-MOVE
+#+begin_src emacs-lisp
+  (defun buf-move-up ()
+    "Swap the current buffer and the buffer above the split.
+        If there is no split, ie now window above the current one, an
+        error is signaled."
+    (interactive)
+    (let* ((other-win (windmove-find-other-window 'up))
+        	 (buf-this-buf (window-buffer (selected-window))))
+      (if (null other-win)
+          (error "No window above this one")
+        ;; swap top with this one
+        (set-window-buffer (selected-window) (window-buffer other-win))
+        ;; move this one to top
+        (set-window-buffer other-win buf-this-buf)
+        (select-window other-win))))
+
+  (defun buf-move-down ()
+    "Swap the current buffer and the buffer under the split.
+      If there is no split, ie now window under the current one, an
+      error is signaled."
+    (interactive)
+    (let* ((other-win (windmove-find-other-window 'down))
+      	 (buf-this-buf (window-buffer (selected-window))))
+      (if (or (null other-win) 
+              (string-match "^ \\*Minibuf" (buffer-name (window-buffer other-win))))
+          (error "No window under this one")
+        ;; swap top with this one
+        (set-window-buffer (selected-window) (window-buffer other-win))
+        ;; move this one to top
+        (set-window-buffer other-win buf-this-buf)
+        (select-window other-win))))
+
+  (defun buf-move-left ()
+    "Swap the current buffer and the buffer on the left of the split.
+      If there is no split, ie now window on the left of the current
+      one, an error is signaled."
+    (interactive)
+    (let* ((other-win (windmove-find-other-window 'left))
+      	 (buf-this-buf (window-buffer (selected-window))))
+      (if (null other-win)
+          (error "No left split")
+        ;; swap top with this one
+        (set-window-buffer (selected-window) (window-buffer other-win))
+        ;; move this one to top
+        (set-window-buffer other-win buf-this-buf)
+        (select-window other-win))))
+
+  (defun buf-move-right ()
+    "Swap the current buffer and the buffer on the right of the split.
+      If there is no split, ie now window on the right of the current
+      one, an error is signaled."
+    (interactive)
+    (let* ((other-win (windmove-find-other-window 'right))
+      	 (buf-this-buf (window-buffer (selected-window))))
+      (if (null other-win)
+          (error "No right split")
+        ;; swap top with this one
+        (set-window-buffer (selected-window) (window-buffer other-win))
+        ;; move this one to top
+        (set-window-buffer other-win buf-this-buf)
+        (select-window other-win))))
+
+  (defun ds/evil-vsplit-and-move ()
+    "Vertical split and move focus to the new window."
+    (interactive)
+    (evil-window-vsplit)
+    (evil-window-right 1))
+
+  (defun ds/evil-split-and-move ()
+    "Horizontal split and move focus to the new window."
+    (interactive)
+    (evil-window-split)
+    (evil-window-down 1))
+#+end_src
 * COMPLETION FRAMEWORK
-** Vertico
+** MINIBUFFER
+*** MARGINALIA
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :ensure t
+    :init
+    (marginalia-mode))
+#+end_src
+*** VERTICO
 #+begin_src emacs-lisp
   (use-package vertico
     :ensure t
@@ -239,25 +548,28 @@ Configuration the external browser used by `browse-url`.
     :custom
     (vertico-cycle t))
 #+end_src
-** Orderless
+*** SAVEHIST
 #+begin_src emacs-lisp
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides
-   '((file (styles . (basic partial-completion orderless)))
-     (eglot (styles . (orderless basic))))))
-#+end_src
-** Marginalia
-#+begin_src emacs-lisp
-  (use-package marginalia
-    :ensure t
+  (use-package savehist
+    :ensure nil 
     :init
-    (marginalia-mode))
+    (savehist-mode))
 #+end_src
-
-** Corfu
+*** CONSULT
+#+begin_src emacs-lisp
+  (use-package consult
+    :ensure t)
+#+end_src
+*** NERD-ICONS-COMPLETION
+#+begin_src emacs-lisp 
+  (use-package nerd-icons-completion
+    :ensure t
+    :after marginalia
+    :config
+    (nerd-icons-completion-mode 1))
+#+end_src
+** MAINBUFFER
+*** CORFU
 #+begin_src emacs-lisp
   (use-package corfu
     :ensure t
@@ -279,24 +591,7 @@ Configuration the external browser used by `browse-url`.
     :config
     (corfu-terminal-mode 1))
 #+end_src
-** Cape
-#+begin_src emacs-lisp
-  (use-package cape
-     :ensure t
-     :init
-     (add-hook 'completion-at-point-functions #'cape-dabbrev)
-     (add-hook 'completion-at-point-functions #'cape-file))
-
-  (defun ds/cape-capf-setup ()
-    (setq-local completion-at-point-functions
-                (list
-                  #'eglot-completion-at-point
-                  #'cape-dabbrev
-                  #'cape-file)))
-  (add-hook 'eglot-managed-mode-hook #'ds/cape-capf-setup)
-#+end_src
-
-** Kind-icon
+*** KIND-ICONS
 #+begin_src emacs-lisp
   (use-package kind-icon
     :ensure t
@@ -306,51 +601,51 @@ Configuration the external browser used by `browse-url`.
     :config
     (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+end_src
-** Nerd-icons-completion
+*** CAPE
 #+begin_src emacs-lisp
-  (use-package nerd-icons-completion
+  (use-package cape
     :ensure t
-    :after marginalia
-    :config
-    (nerd-icons-completion-mode)
-    (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
-#+end_src
-** Consult
-#+begin_src emacs-lisp
-  (use-package consult
-    :ensure t)
-#+end_src
-** Savehist
-#+begin_src emacs-lisp
-  (use-package savehist
-    :ensure nil 
     :init
-    (savehist-mode))
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file))
+
+  (defun ds/cape-capf-setup ()
+    (setq-local completion-at-point-functions
+                (list
+                 #'eglot-completion-at-point
+                 #'cape-dabbrev
+                 #'cape-file)))
+  (add-hook 'eglot-managed-mode-hook #'ds/cape-capf-setup)
 #+end_src
-* LSP AND PROGRAMMING SUPPORT
-** Treesit
-*** treesit-auto
+** MATCHING
+
+#+begin_src emacs-lisp
+  (use-package orderless
+    :ensure t
+    :custom
+    (completion-styles '(orderless basic))
+    (completion-category-overrides
+     '((file (styles . (basic partial-completion orderless)))
+       (eglot (styles . (orderless basic))))))
+#+end_src
+* PROGRAMMING SUPPORT
+** TREESIT
 #+begin_src emacs-lisp
   (use-package treesit-auto
     :ensure t
     :custom
-    (treesit-auto-install 'prompt) ; 如果没有对应的语法，打开文件时会弹窗提示一键自动编译下载
+    (treesit-auto-install 'prompt)
     :config
     (global-treesit-auto-mode))
   (setq treesit-font-lock-level 4)
-#+end_src
-*** treesit-abi-version
-#+begin_src emacs-lisp
-  (setq treesit-language-source-alist
-        '((c "https://github.com/tree-sitter/tree-sitter-c" "v0.21.3")))
-#+end_src
-** Language Support
-*** cmake
+#+end_src 
+** LANGUAGES
+*** CMAKE
 #+begin_src emacs-lisp
   (use-package cmake-mode
     :ensure t)
 #+end_src
-*** yaml
+*** YAML
 #+begin_src emacs-lisp
   (use-package yaml-mode
     :ensure t)
@@ -358,12 +653,8 @@ Configuration the external browser used by `browse-url`.
   ;; clangd config files
   (add-to-list 'auto-mode-alist '("\\.clangd\\'" . yaml-mode))
 #+end_src
-*** Rust
-#+begin_src emacs-lisp
-  (use-package rust-mode
-    :ensure t)
-#+end_src
-** major-mode
+
+** MAJOR-MODE
 #+begin_src emacs-lisp
   (setq major-mode-remap-alist
         '((c-mode . c-ts-mode)
@@ -371,7 +662,7 @@ Configuration the external browser used by `browse-url`.
           (python-mode . python-ts-mode)
           (cmake-mode . cmake-ts-mode)))
 #+end_src
-** Eglot
+** EGLOT
 #+begin_src emacs-lisp
   (use-package eglot
     :ensure nil 
@@ -383,56 +674,36 @@ Configuration the external browser used by `browse-url`.
     :config
     (setq completion-category-overrides '((eglot (styles . (orderless))))))
 #+end_src
-*** LSP parameters
-**** clangd
+** LSP-SETTINGS
+*** CLANGD
 #+begin_src emacs-lisp
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '((c-ts-mode c++-ts-mode)
-                 . ("clangd"
-                    "--header-insertion=never"
-                    "--completion-style=detailed"
-                    "--function-arg-placeholders"
-                    "--clang-tidy"
-                    "--cross-file-rename"))))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 '((c-ts-mode c++-ts-mode)
+                   . ("clangd"
+                      "--header-insertion=never"
+                      "--completion-style=detailed"
+                      "--function-arg-placeholders"
+                      "--clang-tidy"
+                      "--cross-file-rename"))))
 #+end_src
-
-*** GDB
-#+begin_src emacs-lisp
-  (setq gdb-many-windows t)
-  (setq gdb-show-changed-values t)
-  (setq gdb-max-source-window-count t)
-  (add-hook 'gdb-mode-hook '(lambda () (gud-tooltip-mode 1)))
-#+end_src
-** Eldoc-box
-
+** ELDOC-BOX
 #+begin_src emacs-lisp
   (use-package eldoc-box
     :ensure t
-    ;; 关键：必须添加这个钩子，才能在 eglot 管理的 buffer 里自动弹出浮窗
     :hook (eglot-managed-mode . eldoc-box-hover-at-point-mode)
     :config
     (setq eldoc-idle-delay 0.8)
     (setq eldoc-box-child-frame-parameters
           '((left-fringe . 8)
             (right-fringe . 8)
-            (internal-border-width . 12) ; 增加内边距，让文字更有呼吸感
+            (internal-border-width . 12)
             (vertical-scroll-bars . nil)
             (horizontal-scroll-bars . nil)))
-
-    ;; 设置一个更有质感的背景色和边框
-    (set-face-attribute 'eldoc-box-body nil 
-                        :background "#1e1e1e" ; 深色背景
-                        :foreground "#d4d4d4" 
-                        :height 0.95)
-    
-    (set-face-attribute 'eldoc-box-border nil 
-                        :background "#3e3e42") ; 灰度边框，低调高级
-    
-    (setq eldoc-box-max-pixel-width 700) ; 稍微加宽，适合阅读代码签名
+    (setq eldoc-box-max-pixel-width 700)
     (setq eldoc-box-max-pixel-height 400))
 #+end_src
-** Flymake
+** FLYMAKE
 #+begin_src emacs-lisp
   (use-package flymake
     :ensure nil
@@ -441,420 +712,20 @@ Configuration the external browser used by `browse-url`.
     (set-face-attribute 'flymake-error-echo nil :foreground "#ff6c6b")
     (set-face-attribute 'flymake-warning-echo nil :foreground "#ecbe7b"))
 #+end_src
-
-* UI PACKAGES
-** NERD-ICONS
-
-#+begin_src emacs-lisp
-  ;; nerd icons
-  (use-package nerd-icons
-    :ensure t)
-#+end_src
-** Doom-themes
-
-#+begin_src emacs-lisp
-    (use-package doom-themes
-      :ensure t
-      :config
-      (setq doom-themes-visual-bell nil
-        	doom-modeline-enable-visual-bell nil
-        	doom-themes-enable-bold t
-        	doom-themes-enable-italic t)
-      (load-theme 'doom-gruvbox t)
-      (doom-themes-org-config)
-      (doom-themes-org-config))
-
-  (custom-set-faces
-   '(font-lock-type-face ((t (:italic t))))
-   '(font-lock-keyword-face ((t (:italic t))))
-   '(font-lock-comment-face ((t (:italic t))))
-   '(font-lock-doc-face ((t (:italic t)))))
-#+end_src
-
-** Doom-modeline
-
-#+begin_src emacs-lisp
-  (use-package doom-modeline
-    :ensure t
-    :init (doom-modeline-mode 1)
-    :config
-    (setq doom-modeline-height 35      ;; sets modeline height
-          doom-modeline-bar-width 5    ;; sets right bar width
-          doom-modeline-persp-name t   ;; adds perspective name to modeline
-          doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
-#+end_src
-** Dashboard
-
-#+begin_src emacs-lisp
-  (use-package dashboard
-    :ensure t
-    :init
-    (setq initial-buffer-choice 'dashboard-open)
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t)
-    (setq dashboard-banner-logo-title "happy coding!")
-    (setq dashboard-startup-banner 3)
-    (setq dashboard-center-content t)
-    (setq dashboard-projects-backend 'projectile)
-    (progn
-      (setq dashboard-items '((recents . 8)
-  			    (projects . 3))))
-    :custom
-    (dashboard-modify-heading-icons '((recents . "file-text")
-  				    (bookmarks . "book")))
-    :config
-    (dashboard-setup-startup-hook))
-#+end_src
-
-** Ligature
-#+begin_src emacs-lisp
-  (use-package ligature
-    :ensure t 
-    :config
-    ;; 为所有编程模式开启连字
-    (ligature-set-ligatures 'prog-mode '("==" "===" "!=" "!==" "->" "=>" "++"))
-    (global-ligature-mode t))
-#+end_src
-* FILE & PROJECT MANAGEMENT
-** Projectile
-#+begin_src emacs-lisp
-  (use-package projectile
-    :ensure t
-    :diminish
-    :config
-    (projectile-mode 1))
-  (add-to-list 'display-buffer-alist
-               '("\\*compilation\\*"
-                 (display-buffer-reuse-window display-buffer-at-bottom)
-                 (reusable-frames . nil)
-                 (window-height . 0.4)))
-  (with-eval-after-load 'projectile
-    (setq projectile-project-root-files-bottom-up
-  	(delete "CMakeLists.txt" projectile-project-root-files-bottom-up)))
-#+end_src
-
-** Neotree
-
-#+begin_src emacs-lisp
-  (use-package neotree
-    :ensure t
-    :config
-    (setq neo-window-width 42)
-    (setq neo-theme 'nerd-icons) 
-    (setq neo-smart-open t)
-    (setq neo-window-fixed-size nil) 
-    (setq neo-show-hidden-files t)
-    (setq neo-autorefresh nil))
-#+end_src
-
-** Dired
-#+begin_src emacs-lisp
-  (use-package dired-open
-    :ensure t
-    :config
-    (setq dired-open-extensions '(("gif" . "sxiv")
-                                  ("jpg" . "sxiv")
-                                  ("png" . "sxiv")
-                                  ("mkv" . "mpv")
-                                  ("mp4" . "mpv"))))
-
-  (use-package peep-dired
-    :after dired
-    :hook (evil-normalize-keymaps . peep-dired-hook)
-    :config
-    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
-    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file) ; use dired-find-file instead if not using dired-open package
-    (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
-    (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file)
-    )
-#+end_src
-* TERMINAL & SHELL
-** Eshell
-
-#+begin_src emacs-lisp
-  ;; eshell syntax highlight
-  (use-package eshell-syntax-highlighting
-    :ensure t
-    :after esh-mode
-    :config
-    (eshell-syntax-highlighting-global-mode +1))
-
-  (setq eshell-history-size 5000
-        ;; eshell-rc-script (concat user-emacs-directory "eshell/profile")
-        ;; eshell-aliases-file (concat user-emacs-directory "eshell/aliases")
-        eshell-buffer-maximum-lines 5000
-        eshell-hist-ignoredups t
-        eshell-scroll-to-bottom-on-input t
-        eshell-destory-buffer-when-process-dies t
-        eshell-visual-commands '("bash" "fish" "htop" "ssh" "top" "zsh"))
-
-  (defun my/toggle-eshell ()
-    "Toggle a bottom eshell window."
-    (interactive)
-    (let* ((buf (get-buffer "*eshell*")))
-      ;; 如果不存在，创建一个
-      (unless buf
-        (save-window-excursion
-  	(eshell))
-        (setq buf (get-buffer "*eshell*")))
-
-      ;; 如果已经显示 → 收回
-      (if (get-buffer-window buf)
-  	(progn
-            (bury-buffer buf)
-            (delete-window (get-buffer-window buf)))
-        ;; 否则弹出并切换过去
-        (let ((win (display-buffer-in-side-window
-                    buf
-                    '((side . bottom)
-                      (slot . 0)
-                      (window-height . 0.3)))))
-  	(select-window win)))))
-#+end_src
-
-** Vterm
-
-Vterm is a terminal eemulator within emacs. The 'shell-file-name' setting sets the shell to be used in
-
-+ M-x shell
-+ M-x term
-+ M-x ansi-term
-+ M-x vterm
-  
-By default, the shell is set to 'zsh'.
-
-#+begin_src emacs-lisp
-  ;; vterm
-  (use-package vterm
-    :ensure t
-    :init
-    (setq shell-file-name "/bin/zsh"
-  	vterm-max-scrollback 5000))
-
-  ;; vterm-toggle
-  (use-package vterm-toggle
-    :ensure t
-    :after vterm
-    :config
-    (setq vterm-toggle-fullscreen-p nil)
-    (setq vterm-toggle-scope 'project)
-    (add-to-list 'display-buffer-alist
-                 '((lambda (buffer-or-name _)
-                     (let ((buffer (get-buffer buffer-or-name)))
-                       (with-current-buffer buffer
-                         (or (equal major-mode 'vterm-mode)
-                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
-                   (display-buffer-reuse-window display-buffer-at-bottom)
-                   ;;(display-buffer-reuse-window display-buffer-in-direction)
-                   ;;display-buffer-in-direction/direction/dedicated is added in emacs27
-                   (direction . bottom)
-                   (dedicated . t) ;dedicated is supported in emacs27
-                   (reusable-frames . visible)
-                   (window-height . 0.20))))
-#+end_src
-* GIT & VERSION CONTROL
-** Magit
-#+begin_src emacs-lisp
-  (use-package transient
-    :ensure t)
-
-  (use-package magit
-    :ensure t)
-#+end_src
-* UTILITY PACKAGES
-** Diminish
-
-This package implements hiding or abbreviation of the modeline displays of minor-modes.
-
-#+begin_src emacs-lisp
-  (use-package diminish
-    :ensure t)
-#+end_src
-** sudo-edit
-
-#+begin_src emacs-lisp
-  (use-package sudo-edit
-    :ensure t)
-#+end_src
-
-** Which-key
-
-which-key package for keymap description.
-
-#+begin_src emacs-lisp
-  (use-package which-key
-    :ensure t
-    :diminish
-    :init 
-    (which-key-mode 1)
-    :config
-    (setq which-key-side-window-location 'bottom
-  	which-key-sort-order #'which-key-key-order
-  	which-key-allow-imprecise-window-fit nil
-  	which-key-sort-uppercase-first nil
-  	which-key-add-column-padding 1
-  	which-key-max-display-columns nil
-  	which-key-min-display-lines 6
-  	which-key-side-window-slot -10
-  	which-key-side-window-max-height 0.5
-  	which-key-idle-delay 0.8
-  	which-key-max-description-length 100
-  	which-key-allow-imprecise-window-fit nil
-  	which-key-separator " → " ))
-#+end_src
-
-** Popon
-#+begin_src emacs-lisp
-  (use-package popon
-    :ensure t)
-#+end_src
-** Buffer-move
-#+begin_src emacs-lisp
-  (defun buf-move-up ()
-    "Swap the current buffer and the buffer above the split.
-    If there is no split, ie now window above the current one, an
-    error is signaled."
-    (interactive)
-    (let* ((other-win (windmove-find-other-window 'up))
-    	 (buf-this-buf (window-buffer (selected-window))))
-      (if (null other-win)
-          (error "No window above this one")
-        ;; swap top with this one
-        (set-window-buffer (selected-window) (window-buffer other-win))
-        ;; move this one to top
-        (set-window-buffer other-win buf-this-buf)
-        (select-window other-win))))
-
-  (defun buf-move-down ()
-    "Swap the current buffer and the buffer under the split.
-  If there is no split, ie now window under the current one, an
-  error is signaled."
-    (interactive)
-    (let* ((other-win (windmove-find-other-window 'down))
-  	 (buf-this-buf (window-buffer (selected-window))))
-      (if (or (null other-win) 
-              (string-match "^ \\*Minibuf" (buffer-name (window-buffer other-win))))
-          (error "No window under this one")
-        ;; swap top with this one
-        (set-window-buffer (selected-window) (window-buffer other-win))
-        ;; move this one to top
-        (set-window-buffer other-win buf-this-buf)
-        (select-window other-win))))
-
-  (defun buf-move-left ()
-    "Swap the current buffer and the buffer on the left of the split.
-  If there is no split, ie now window on the left of the current
-  one, an error is signaled."
-    (interactive)
-    (let* ((other-win (windmove-find-other-window 'left))
-  	 (buf-this-buf (window-buffer (selected-window))))
-      (if (null other-win)
-          (error "No left split")
-        ;; swap top with this one
-        (set-window-buffer (selected-window) (window-buffer other-win))
-        ;; move this one to top
-        (set-window-buffer other-win buf-this-buf)
-        (select-window other-win))))
-
-  (defun buf-move-right ()
-    "Swap the current buffer and the buffer on the right of the split.
-  If there is no split, ie now window on the right of the current
-  one, an error is signaled."
-    (interactive)
-    (let* ((other-win (windmove-find-other-window 'right))
-  	 (buf-this-buf (window-buffer (selected-window))))
-      (if (null other-win)
-          (error "No right split")
-        ;; swap top with this one
-        (set-window-buffer (selected-window) (window-buffer other-win))
-        ;; move this one to top
-        (set-window-buffer other-win buf-this-buf)
-        (select-window other-win))))
-
-#+end_src
-* EVIL MODE
-** Evil
-#+begin_src emacs-lisp
-  (use-package evil
-    :ensure t
-    :init 
-    (setq evil-want-keybinding nil)
-    (setq evil-want-integration t)
-    :demand t
-    :config
-    ;; my vim keymap ;;;;;;;;;;;;;;;;;;;
-    (evil-define-motion ds/evil/move-down-5-lines (count)
-      "Move down 5 lines."
-      :type line
-      (evil-next-line (or count 5)))
-    (evil-define-motion ds/evil/move-up-5-lines (count)
-      "Move down 5 lines."
-      :type line
-      (evil-previous-line (or count 5)))
-    (evil-define-motion ds/evil/move-beginning-of-line ()
-      "Move to beginning of current line."
-      :type exclusive
-      (evil-first-non-blank))
-    (evil-define-motion ds/evil/move-end-of-line ()
-      "Move to end of current line."
-      :type exclusive
-      (evil-end-of-line))
-    (evil-mode 1))
-
-#+end_src
-
-** Evil-collection
-#+begin_src emacs-lisp
-  (use-package evil-collection
-    :ensure t
-    :after evil
-    :config
-    (evil-collection-init))
-#+end_src
-
-** Evil-escape
-
-#+begin_src emacs-lisp
-  (use-package evil-escape
-    :ensure t
-    :after evil
-    :config
-    (evil-escape-mode)
-    (setq evil-escape-key-sequence "jk"
-          evil-escape-delay 0.15))
-#+end_src
-
-** Evil-numbers
-#+begin_src emacs-lisp
-  (use-package evil-numbers
-    :ensure t
-    :after evil
-    :bind
-    (:map evil-normal-state-map
-          ("C-a" . evil-numbers/inc-at-pt)
-          ("C-x" . evil-numbers/dec-at-pt))
-    (:map evil-visual-state-map
-          ("C-a" . evil-numbers/inc-at-pt)
-          ("C-x" . evil-numbers/dec-at-pt)))
-#+end_src
-** Evil-surround
-#+begin_src emacs-lisp
-  (use-package evil-surround
-    :ensure t)
-#+end_src
 * GENERAL
+
 #+begin_src emacs-lisp
   (use-package general
     :ensure t
     :config
     (general-evil-setup)
+
     (general-create-definer leader-key
       :states '(normal visual)
       :keymaps 'override
       :prefix "SPC"
-      :global-prefix "M-SPC") ;; access leader in insert mode
+      :global-prefix "M-SPC")
 
-    ;; normal and visual mode keymap
     (general-define-key
      :states '(normal visual)
      :keymaps 'override
@@ -866,7 +737,20 @@ which-key package for keymap description.
      "gc" #'comment-line)
 
     (leader-key
-      ;; buffer management
+      
+      ;; Window Management =====================================================
+      "w"   '(:ignore t :wk "Window Management")
+      "w n" '(evil-window-new :wk "Split the current window horizontally.")
+      "w c" '(evil-window-delete :wk "Delete the current window of tab.")
+      "w s" '(ds/evil-split-and-move :wk "Split the current window horizontally, COUNT lines height.")
+      "w v" '(ds/evil-vsplit-and-move :wk "Split the current window vertically, COUNT columns width.")
+      ;; move windows
+      "w H" '(buf-move-left :wk "Swap the current buffer and the buffer on the left of the split.")
+      "w L" '(buf-move-right :wk "Swap the current buffer and the buffer on the right of the split.")
+      "w J" '(buf-move-down :wk "Swap the current buffer and the buffer under the split.")
+      "w K" '(buf-move-up :wk "Swap the current buffer and the buffer above the split.")
+      
+      ;; Buffer Management =====================================================
       "b"   '(:ignore t :wk "Buffer Management")
       "b b" '(switch-to-buffer t :wk "Display buffer BUFFER-OR-NAME in the selected window.")
       "b i" '(ibuffer t :wk "Begin using Ibuffer to eidt a list of buffer.")
@@ -875,69 +759,68 @@ which-key package for keymap description.
       "b p" '(previous-buffer t :wk "In selected window switch to ARGth previous buffer.")
       "b r" '(revert-buffer t :wk "Replace current buffer text with the text of the visited file on disk.")
 
-      ;; helo information
+      ;; Help Info ============================================================
       "h"    '(:ignore t :wk "Help")
       "h f"  '(describe-function :wk "Display the full documentation of FUNCTION(a symbol).")
       "h v"  '(describe-variable :wk "Display the full documentation of VARIABLE(a symbol).")
-      "h v"  '(describe-mode :wk "Display documentation current major mode and minor modes.")
-      "h rr" '((lambda () (interactive)
-    	       (load-file "~/.config/emacs/init.el")
-    	       (load-file "~/.config/emacs/init.el"))
-    	     :wk "Reload emacs configuration")
+      "h m"  '(describe-mode :wk "Display documentation current major mode and minor modes.")
 
-      ;; window management
-      "w"   '(:ignore t :wk "Window Management")
-      "w n" '(evil-window-new :wk "Split the current window horizontally.")
-      "w c" '(evil-window-delete :wk "Delete the current window of tab.")
-      "w s" '(evil-window-split :wk "Split the current window horizontally, COUNT lines height.")
-      "w v" '(evil-window-vsplit :wk "Split the current window vertically, COUNT columns width.")
-      ;; move windows
-      "w H" '(buf-move-left :wk "Swap the current buffer and the buffer on the left of the split.")
-      "w L" '(buf-move-right :wk "Swap the current buffer and the buffer on the right of the split.")
-      "w J" '(buf-move-down :wk "Swap the current buffer and the buffer under the split.")
-      "w K" '(buf-move-up :wk "Swap the current buffer and the buffer above the split.")
-
-      ;; file
-      "f"   '(:ignore t :wk "File Operations")
-      "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "edit config.org.")
-      "f u" '(sudo-edit-find-file :wk "Edit FILENAME as another user, by default 'sudo-edit-user'.")
-      "f U" '(sudo-edit :wk "Edit currently visited file as another user, by default 'sudo-edit-user'.")
+      ;; File Operation =======================================================
+      "f"    '(:ignore t :wk "File Operations")
+      "f c"  '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "edit config.org.")
+      "f u"  '(sudo-edit-find-file :wk "Edit FILENAME as another user, by default 'sudo-edit-user'.")
+      "f U"  '(sudo-edit :wk "Edit currently visited file as another user, by default 'sudo-edit-user'.")
+      "f rr" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :wk "Reload emacs configuration")
       "SPC SPC" '(find-file :wk "Edit file FILENAME.")
 
-      "l "  '(:ignore t :wk "LSP Operations")
-      "l d" '(xref-find-definitions :wk "Find the definition of the identifier at the point.")
-      "l r" '(xref-find-references :wk "Find the references of the identifier at the point.")
-      "l f" '(eglot-format-buffer :wk "Format contents of current buffer.")
-      "l R" '(eglot-rename :wk "Rename the current symbol to NEWNAME.")
-      "l a" '(eglot-code-actions :wk "Find LSP code action of type ACTION-KIND between BEG and END.")
-      "l t" '(eglot-inlay-hints-mode :wk "Eglot inlay hints.")
-      "l e" '(consult-flymake :wk "Jump to Flymake diagnostic.")
-      "l n" '(flymake-goto-next-error :wk "Go to Nth next Flymake diagnostic that matches FILTER.")
-      "l p" '(flymake-goto-prev-error :wk "Go to Nth previous Flymake diagnostic that matches FILTER.")
-
+      ;; Project Operations =====================================================
       "p "  '(:ignore t :wk "Project Operations")
       "p c" '(projectile-compile-project :wk "Run project compilation command.")
       "p r" '(projectile-run-project :wk "Run project run command.")
       "p p" '(projectile-switch-project :wk "Switch to a project we have visited before.")
-      "p k" '(projectile-kill-buffers :wk "Keil project buffers.")
+      "p k" '(projectile-kill-buffers :wk "Kill project buffers.")
 
+      ;; LSP Functions =========================================================
+      "l "  '(:ignore t :wk "LSP Operations")
+      ;; navigation
+      "l d"  '(xref-find-definitions :wk "Find Definition")
+      "l r"  '(xref-find-references :wk "Find References")
+      "l i"  '(eglot-find-implementation :wk "Find Implementation")
+      ;; refactoring
+      "l f"  '(eglot-format-buffer :wk "Format Buffer")
+      "l R"  '(eglot-rename :wk "Rename Symbol")
+      "l a"  '(eglot-code-actions :wk "Code Actions")
+      "l t"  '(eglot-inlay-hints-mode :wk "Toggle Inlay Hints")
+      ;; Diagnostics
+      "l e"  '(consult-flymake :wk "Consult Flymake Diagnostics")
+      "l n"  '(flymake-goto-next-error :wk "Next Error")
+      "l p"  '(flymake-goto-prev-error :wk "Prev Error")
+      "l B"  '(flymake-show-buffer-diagnostics :wk "Show Buffer Diagnostics List")
+      ;; LSP Server Management
+      "l h"  '(eldoc :wk "Trigger ElDoc / Show Docs")
+      "l q"  '(eglot-shutdown :wk "Shutdown LSP Server")
+      "l Q"  '(eglot-reconnect :wk "Reconnect/Restart LSP Server")
+     
+      ;; Consult Function =====================================================
       "c "  '(:ignore t :wk "Consult Operations")
-      "c r" '(consult-ripgrep :wk "Search with 'rg' for files in DIR with INITIAL input.")
-      "c s" '(consult-line :wk "Search for a matching lines.")
-      "c f" '(consult-fd :wk "Search for files with 'fd' in DIR.")
-      "c l" '(consult-goto-line :wk "Read line number and jump to the line with preview.")
+      ;; text search 
+      "c s"  '(consult-ripgrep :wk "Search with 'rg' (Project)")
+      "c l"  '(consult-line :wk "Search lines (Current Buffer)")
+      ;; file & buffer
+      "c f"  '(consult-fd :wk "Find files with 'fd'")
+      "c b"  '(consult-buffer :wk "Switch Buffer / Recent files")
+      ;; code outline
+      "c i"  '(consult-imenu :wk "Jump to Symbol/Function (Imenu)")
+      "c I"  '(consult-imenu-multi :wk "Jump to Symbol (All Buffers)")
+      ;; editing
+      "c y"  '(consult-yank-pop :wk "Show Clipboard History (Yank Pop)")
+      "c r"  '(consult-register :wk "Manage Emacs Registers / Bookmarks")
 
-      ;; shell and terminal 
+      ;; Terminal Functions =====================================================
       "t"   '(:ignore t :wk "Terminal and Shell Functions")
       "t v" '(vterm-toggle :wk "Vterm toggle.")
       "t t" '(neotree-toggle :wk "Toggle show the NeoTree window.")
-      "t T" '(eshell :wk "Creat an interactive Eshell buffer."))
-
-    ;; eshell
-    (general-define-key
-     :states '(normal insert visual)
-     "C-t" #'my/toggle-eshell)
-    )
+      "t T" '(eshell :wk "Creat an interactive Eshell buffer.")))
 #+end_src
 
 * DOCUMENT
@@ -957,7 +840,9 @@ Enabling org bullets
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook 'org-indent-mode)
   (use-package org-bullets
-    :ensure t)
+    :ensure t
+    :config
+    (setq org-ellipsis " ▾"))
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 
@@ -986,7 +871,6 @@ Enabling org bullets
     :config
     (setq markdown-fontify-code-blocks-natively t))
 #+end_src
-
 
 
 
