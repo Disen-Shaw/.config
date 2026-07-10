@@ -581,6 +581,13 @@ By default, the shell is set to 'zsh'.
     (evil-window-split)
     (evil-window-down 1))
 #+end_src
+** FANCY-COMPILATION
+#+begin_src emacs-lisp
+  (use-package fancy-compilation
+    :ensure t
+    :config
+    (fancy-compilation-mode 1))
+#+end_src
 * COMPLETION FRAMEWORK
 ** MINIBUFFER
 *** MARGINALIA
