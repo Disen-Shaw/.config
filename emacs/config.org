@@ -137,7 +137,19 @@ Enable useful built‑in behaviors that improve the editing experience.
 #+begin_src emacs-lisp
   (save-place-mode 1)        ;; remember cursor position in files
   (electric-pair-mode 1)     ;; automatically insert matching brackets
-  (add-hook 'prog-mode-hook #'hs-minor-mode)
+#+end_src
+
+Codes folding function.
+
+#+begin_src emacs-lisp
+  (use-package vimish-fold
+    :ensure t)
+#+end_src
+
+*** TAB
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 4)
 #+end_src
 *** AUTO BACKUP
 
@@ -208,40 +220,57 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
     (ligature-set-ligatures 'prog-mode 
                             '("||" "&&" "==" "===" "!=" "!==" "=>" "->" "<-" "<=" ">="
                               "++" "--" "**" "***" "::" "::=" "=:=" "==" "/*" "*/" "//"
-                              "!!" "??" "||=" "&&=" "?=" "=~" "!~"
+                              "!!" "??" "||=" "&&=" "?=" "=~" "!~" "///"
                               "<~" "<~>" "~>" "_|_" "||>" "|>" "<|" "<|>" "<$" ">$"
                               "<$>" "==>" "===>" "<== " "<===" "<=>" "<==>" "##" "###" "####"
                               "##|" "[| " " |]" "{|" " |}" "+++" "##=" ".-" ".=" "=:"))
     
     (global-ligature-mode t))
 #+end_src
+** ANSI-COLOR
+#+begin_src emacs-lisp
+  (use-package ansi-color
+    :ensure nil
+    :hook (compilation-filter . ansi-color-compilation-filter))
+#+end_src
+** HIGHLIGHT-COMMENT
+#+begin_src emacs-lisp
+  (use-package highlight-doxygen
+    :ensure t
+    :hook ((c-ts-mode c++-ts-mode) . highlight-doxygen-mode))
+#+end_src
 * EVIL
 ** EVIL-MODE
 #+begin_src emacs-lisp
-  (use-package evil
-    :ensure t
-    :init 
-    (setq evil-want-keybinding nil)
-    (setq evil-want-integration t)
-    :demand t
-    :config
-    (evil-define-motion ds/evil/move-down-5-lines (count)
-      "Move down 5 lines."
-      :type line
-      (evil-next-line (or count 5)))
-    (evil-define-motion ds/evil/move-up-5-lines (count)
-      "Move down 5 lines."
-      :type line
-      (evil-previous-line (or count 5)))
-    (evil-define-motion ds/evil/move-beginning-of-line ()
-      "Move to beginning of current line."
-      :type exclusive
-      (evil-first-non-blank))
-    (evil-define-motion ds/evil/move-end-of-line ()
-      "Move to end of current line."
-      :type exclusive
-      (evil-end-of-line))
-    (evil-mode 1))
+    (use-package evil
+      :ensure t
+      :init 
+      (setq evil-want-keybinding nil)
+      (setq evil-want-integration t)
+      :demand t
+      :config
+      (evil-define-motion ds/evil/move-down-5-lines (count)
+        "Move down 5 lines."
+        :type line
+        (evil-next-visual-line (or count 5)))
+      (evil-define-motion ds/evil/move-up-5-lines (count)
+        "Move down 5 lines."
+        :type line
+        (evil-previous-visual-line (or count 5)))
+      (evil-define-motion ds/evil/move-beginning-of-line ()
+        "Move to beginning of current line."
+        :type exclusive
+        (evil-first-non-blank))
+      (evil-define-motion ds/evil/move-end-of-line ()
+        "Move to end of current line."
+        :type exclusive
+        (evil-end-of-line))
+      (evil-mode 1))
+(with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-visual-state-map (kbd "j") 'evil-next-visual-line)
+  (define-key evil-visual-state-map (kbd "k") 'evil-previous-visual-line))
 #+end_src
 ** EVIL-ESCAPE
 #+begin_src emacs-lisp
@@ -273,6 +302,17 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
     (:map evil-visual-state-map
   	("C-a" . evil-numbers/inc-at-pt)
   	("C-x" . evil-numbers/dec-at-pt)))
+#+end_src
+
+** EVIL-VIMISH-FOLD
+#+begin_src emacs-lisp
+  (use-package evil-vimish-fold
+    :ensure t
+    :after (evil vimish-fold)
+    :init
+    (setq evil-vimish-fold-target-modes '(prog-mode text-mode))
+    :config
+    (global-evil-vimish-fold-mode 1))
 #+end_src
 * UTILS
 ** DASHBOARD
@@ -630,6 +670,7 @@ By default, the shell is set to 'zsh'.
 #+end_src
 * PROGRAMMING SUPPORT
 ** TREESIT
+*** TREESIT-AUTO
 #+begin_src emacs-lisp
   (use-package treesit-auto
     :ensure t
@@ -664,6 +705,9 @@ By default, the shell is set to 'zsh'.
 #+end_src
 ** EGLOT
 #+begin_src emacs-lisp
+  (setq read-process-output-max (* 1024 1024))
+  (setq gc-cons-threshold (* 100 1024 1024))
+
   (use-package eglot
     :ensure nil 
     :hook
@@ -672,6 +716,7 @@ By default, the shell is set to 'zsh'.
      (python-ts-mode . eglot-ensure)
      (cmake-ts-mode . eglot-ensure))
     :config
+    (setq tab-always-indent 'complete)
     (setq completion-category-overrides '((eglot (styles . (orderless))))))
 #+end_src
 ** LSP-SETTINGS
@@ -686,6 +731,12 @@ By default, the shell is set to 'zsh'.
                       "--function-arg-placeholders"
                       "--clang-tidy"
                       "--cross-file-rename"))))
+#+end_src
+*** NEOCMAKELSP
+#+begin_src emacs-lisp
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 '(cmake-ts-mode . ("neocmakelsp" "stdio"))))
 #+end_src
 ** ELDOC-BOX
 #+begin_src emacs-lisp
@@ -800,7 +851,7 @@ By default, the shell is set to 'zsh'.
       "l h"  '(eldoc :wk "Trigger ElDoc / Show Docs")
       "l q"  '(eglot-shutdown :wk "Shutdown LSP Server")
       "l Q"  '(eglot-reconnect :wk "Reconnect/Restart LSP Server")
-     
+      
       ;; Consult Function =====================================================
       "c "  '(:ignore t :wk "Consult Operations")
       ;; text search 
@@ -871,6 +922,4 @@ Enabling org bullets
     :config
     (setq markdown-fontify-code-blocks-natively t))
 #+end_src
-
-
 
