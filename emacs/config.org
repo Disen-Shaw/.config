@@ -459,18 +459,26 @@ By default, the shell is set to 'zsh'.
     :after vterm
     :config
     (setq vterm-toggle-fullscreen-p nil)
-    (setq vterm-toggle-scope 'project)
-    (add-to-list 'display-buffer-alist
-                 '((lambda (buffer-or-name _)
-                     (let ((buffer (get-buffer buffer-or-name)))
-                       (with-current-buffer buffer
-                         (or (equal major-mode 'vterm-mode)
-                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
-                   (display-buffer-reuse-window display-buffer-at-bottom)
-                   (direction . bottom)
-                   (dedicated . t)
-                   (reusable-frames . visible)
-                   (window-height . 0.30))))
+    (defun ds/vterm/toggle-bottom ()
+    "Toggle vterm window at the bottom of the current frame."
+    (interactive)
+    (let ((display-buffer-overriding-action
+           '((display-buffer-reuse-window display-buffer-at-bottom)
+             (direction . bottom)
+             (dedicated . t)
+             (reusable-frames . visible)
+             (window-height . 0.30))))
+      (vterm-toggle)))
+    (defun ds/vterm/toggle-right ()
+    "Toggle vterm window on the right side of the current frame."
+    (interactive)
+    (let ((display-buffer-overriding-action
+           '((display-buffer-reuse-window display-buffer-in-direction)
+             (direction . right)
+             (dedicated . t)
+             (reusable-frames . visible)
+             (window-width . 0.40))))
+      (vterm-toggle))))
 #+end_src
 ** SUDO-EDIT
 #+begin_src emacs-lisp
@@ -886,7 +894,8 @@ By default, the shell is set to 'zsh'.
 
       ;; Terminal Functions =====================================================
       "t"   '(:ignore t :wk "Terminal and Shell Functions")
-      "t v" '(vterm-toggle :wk "Vterm toggle.")
+      "t v" '(ds/vterm/toggle-bottom :wk "Vterm toggle bottom.")
+      "t V" '(ds/vterm/toggle-right :wk "Vterm toggle right.")
       "t t" '(neotree-toggle :wk "Toggle show the NeoTree window.")
       "t T" '(eshell :wk "Creat an interactive Eshell buffer.")))
 #+end_src
