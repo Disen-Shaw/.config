@@ -849,6 +849,7 @@ By default, the shell is set to 'zsh'.
     "f u"  '(sudo-edit-find-file :wk "Edit FILENAME as another user, by default 'sudo-edit-user'.")
     "f U"  '(sudo-edit :wk "Edit currently visited file as another user, by default 'sudo-edit-user'.")
     "f rr" '((lambda () (interactive) (load-file "~/.config/emacs/init.el")) :wk "Reload emacs configuration")
+    "SPC f" '(consult-fd :wk "Find files with 'fd'")
     "SPC SPC" '(find-file :wk "Edit file FILENAME.")
 
     ;; Project Operations =====================================================
@@ -1010,4 +1011,3 @@ Default snippets as shown below:
   (setq pdf-view-continuous t)
   (add-hook 'pdf-view-mode-hook (lambda () (display-line-numbers-mode -1))))
 #+end_src
-
