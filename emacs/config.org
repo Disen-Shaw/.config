@@ -1000,3 +1000,14 @@ Default snippets as shown below:
   (setq markdown-fontify-code-blocks-natively t))
 #+end_src
 
+** PDF
+#+begin_src emacs-lisp
+(use-package pdf-tools
+  :ensure t
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-width)
+  (setq pdf-view-continuous t)
+  (add-hook 'pdf-view-mode-hook (lambda () (display-line-numbers-mode -1))))
+#+end_src
+
