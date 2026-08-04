@@ -916,6 +916,27 @@ By default, the shell is set to 'zsh'.
   (org-ellipsis "")
   (org-log-done 'time))
 #+end_src
+*** ORG-TEMPO
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'org
+  (require 'org-tempo))
+#+end_src
+
+Default snippets as shown below:
+
+| Snippet | Template                              | Description / Usage                         |
+|---------+---------------------------------------+---------------------------------------------|
+| ~<s~      | ~#+begin_src ... #+end_src~             | Source code blocks (C, Python, Shell, etc.) |
+| ~<e~      | ~#+begin_example ... #+end_example~     | Example text / Terminal output              |
+| ~<q~      | ~#+begin_quote ... #+end_quote~         | Quoted text / Emphasis blocks               |
+| ~<v~      | ~#+begin_verbatim ... #+end_verbatim~   | Verbatim block (Literal output)             |
+| ~<c~      | ~#+begin_center ... #+end_center~       | Centered text block                         |
+| ~<l~      | ~#+begin_export latex ... #+end_export~ | Raw LaTeX export block                      |
+| ~<h~      | ~#+begin_export html ... #+end_export~  | Raw HTML export block                       |
+| ~<a~      | ~#+begin_export ascii ... #+end_export~ | Raw ASCII text export block                 |
+| ~<i~      | ~#+include: "file"~                     | Include external files                      |
+
 *** ORG-MODERN
 #+begin_src emacs-lisp
 (use-package org-modern
