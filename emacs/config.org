@@ -87,6 +87,7 @@ Basic UI configurations.
 ;; global display line number
 (global-display-line-numbers-mode t) 
 
+(setq use-short-answers t)
 #+end_src
 
 *** SCROLLING
@@ -998,5 +999,4 @@ Default snippets as shown below:
   :config
   (setq markdown-fontify-code-blocks-natively t))
 #+end_src
-
 
