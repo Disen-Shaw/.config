@@ -3,6 +3,12 @@
 #+AUTHOR: Disen-Shaw (DS)
 #+STARTUP: content
 
+* LAXIAL BINDING
+
+#+begin_src emacs-lisp
+;; -*- lexical-binding: t; -*-
+#+end_src
+
 * ELPACA PACKAGE MANAGER
 
 Elpaca is used as the package manager for this Configuration.
@@ -141,13 +147,6 @@ Enable useful built‑in behaviors that improve the editing experience.
 (electric-pair-mode 1)     ;; automatically insert matching brackets
 #+end_src
 
-Codes folding function.
-
-#+begin_src emacs-lisp
-(use-package vimish-fold
-  :ensure t)
-#+end_src
-
 *** TAB
 #+begin_src emacs-lisp
 (setq-default indent-tabs-mode nil)
@@ -177,7 +176,6 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
 #+begin_src emacs-lisp
 (setq make-pointer-invisible t)
 #+end_src
-
 * UI
 ** THEMES
 #+begin_src emacs-lisp
@@ -188,8 +186,7 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
         doom-modeline-enable-visual-bell nil
         doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (load-theme 'doom-gruvbox t)
-  (doom-themes-org-config)
+  (load-theme 'doom-monokai-machine t)
   (doom-themes-org-config))
 
 (custom-set-faces
@@ -315,17 +312,6 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
   (:map evil-visual-state-map
   	    ("C-a" . evil-numbers/inc-at-pt)
   	    ("C-x" . evil-numbers/dec-at-pt)))
-#+end_src
-
-** EVIL-VIMISH-FOLD
-#+begin_src emacs-lisp
-(use-package evil-vimish-fold
-  :ensure t
-  :after (evil vimish-fold)
-  :init
-  (setq evil-vimish-fold-target-modes '(prog-mode text-mode))
-  :config
-  (global-evil-vimish-fold-mode 1))
 #+end_src
 * UTILS
 ** DASHBOARD
@@ -487,29 +473,16 @@ By default, the shell is set to 'zsh'.
 (use-package sudo-edit
   :ensure t)
 #+end_src
-** WITCH-KEY
-
-'which-key' package for keymap description.
+** WHICH-KEY
 
 #+begin_src emacs-lisp
 (use-package which-key
-  :ensure t
+  :ensure nil
   :init 
   (which-key-mode 1)
   :config
-  (setq which-key-side-window-location 'bottom
-  	    which-key-sort-order #'which-key-key-order
-  	    which-key-allow-imprecise-window-fit nil
-  	    which-key-sort-uppercase-first nil
-  	    which-key-add-column-padding 1
-  	    which-key-max-display-columns nil
-  	    which-key-min-display-lines 6
-  	    which-key-side-window-slot -10
-  	    which-key-side-window-max-height 0.5
-  	    which-key-idle-delay 0.8
-  	    which-key-max-description-length 100
-  	    which-key-allow-imprecise-window-fit nil
-  	    which-key-separator " → " ))
+  (setq which-key-idle-delay 0.8
+        which-key-separator " → "))
 #+end_src
 ** POPON
 #+begin_src emacs-lisp
@@ -614,7 +587,9 @@ By default, the shell is set to 'zsh'.
   :init
   (vertico-mode)
   :custom
-  (vertico-cycle t))
+  (vertico-cycle t)
+  (completion-eager-update t)
+  (completion-eager-display t))
 #+end_src
 *** SAVEHIST
 #+begin_src emacs-lisp
@@ -628,7 +603,9 @@ By default, the shell is set to 'zsh'.
 (use-package consult
   :ensure t)
 #+end_src
+
 *** NERD-ICONS-COMPLETION
+
 #+begin_src emacs-lisp 
 (use-package nerd-icons-completion
   :ensure t
@@ -636,6 +613,7 @@ By default, the shell is set to 'zsh'.
   :config
   (nerd-icons-completion-mode 1))
 #+end_src
+
 ** MAINBUFFER
 *** CORFU
 #+begin_src emacs-lisp
@@ -652,12 +630,6 @@ By default, the shell is set to 'zsh'.
   (corfu-on-exact-match nil)    
   :init
   (global-corfu-mode))
-
-(use-package corfu-terminal
-  :ensure t
-  :after corfu
-  :config
-  (corfu-terminal-mode 1))
 #+end_src
 *** KIND-ICONS
 #+begin_src emacs-lisp
@@ -693,43 +665,42 @@ By default, the shell is set to 'zsh'.
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides
-   '((file (styles . (basic partial-completion orderless)))
-     (eglot (styles . (orderless basic))))))
+   '((file (styles basic partial-completion orderless))
+     (eglot (styles orderless basic))
+     (eglot-capf (styles orderless basic)))))
 #+end_src
 * PROGRAMMING SUPPORT
 ** TREESIT
 *** TREESIT-AUTO
 #+begin_src emacs-lisp
-(use-package treesit-auto
-  :ensure t
-  :custom
-  (treesit-auto-install 'prompt)
-  :config
-  (global-treesit-auto-mode))
-(setq treesit-font-lock-level 4)
+  (use-package treesit-auto
+    :ensure t
+    :custom
+    (treesit-auto-install 'prompt)
+    :config
+    (global-treesit-auto-mode))
+
+  (setq treesit-font-lock-level 4)
+  (setq major-mode-remap-alist
+        '((c-mode . c-ts-mode)
+          (c++-mode . c++-ts-mode)
+          (python-mode . python-ts-mode)
+          (cmake-mode . cmake-ts-mode)
+          (markdown-mode . markdown-ts-mode)))
 #+end_src 
 ** LANGUAGES
-*** CMAKE
-#+begin_src emacs-lisp
-(use-package cmake-mode
-  :ensure t)
-#+end_src
 *** YAML
 #+begin_src emacs-lisp
-(use-package yaml-mode
-  :ensure t)
-
-;; clangd config files
-(add-to-list 'auto-mode-alist '("\\.clangd\\'" . yaml-mode))
+  (use-package yaml-mode
+    :ensure t)
+  ;; clangd config files
+  (add-to-list 'auto-mode-alist '("\\.clangd\\'" . yaml-mode))
 #+end_src
 
-** MAJOR-MODE
+*** DTS
 #+begin_src emacs-lisp
-(setq major-mode-remap-alist
-      '((c-mode . c-ts-mode)
-        (c++-mode . c++-ts-mode)
-        (python-mode . python-ts-mode)
-        (cmake-mode . cmake-ts-mode)))
+(use-package dts-mode
+  :ensure t)
 #+end_src
 ** EGLOT
 #+begin_src emacs-lisp
@@ -744,8 +715,7 @@ By default, the shell is set to 'zsh'.
    (python-ts-mode . eglot-ensure)
    (cmake-ts-mode . eglot-ensure))
   :config
-  (setq tab-always-indent 'complete)
-  (setq completion-category-overrides '((eglot (styles . (orderless))))))
+  (setq tab-always-indent 'complete))
 #+end_src
 ** LSP-SETTINGS
 *** CLANGD
@@ -790,6 +760,17 @@ By default, the shell is set to 'zsh'.
   :config
   (set-face-attribute 'flymake-error-echo nil :foreground "#ff6c6b")
   (set-face-attribute 'flymake-warning-echo nil :foreground "#ecbe7b"))
+#+end_src
+** YASNIPPET
+#+begin_src emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :config
+  (yas-global-mode 1))
+
+(with-eval-after-load 'yasnippet
+  (define-key yas-keymap (kbd "<tab>") 'yas-next-field)
+  (define-key yas-keymap (kbd "TAB") 'yas-next-field))
 #+end_src
 * GENERAL
 #+begin_src emacs-lisp
@@ -911,6 +892,7 @@ By default, the shell is set to 'zsh'.
   :hook
   (org-mode . visual-line-mode)
   :custom
+  (org-use-sub-superscripts '{})
   (org-startup-indented nil)
   (org-hide-emphasis-markers t)
   (org-startup-folded 'content)
@@ -943,8 +925,10 @@ Default snippets as shown below:
 #+begin_src emacs-lisp
 (use-package org-modern
   :ensure t
-  :hook
-  (org-mode . org-modern-mode))
+  :hook (org-mode . org-modern-mode)
+  :custom
+  (org-modern-replace-stars ">")
+  (org-modern-star '(">" ">" ">" ">" ">" ">")))
 #+end_src
 *** ORG-APPEAR
 #+begin_src emacs-lisp
@@ -987,18 +971,9 @@ Default snippets as shown below:
 
   (setq org-latex-hypersetup "hidelinks")
 
+  ;; 使用 latexmk 自动管理编译流程
   (setq org-latex-pdf-process
-        '("xelatex -shell-escape -interaction=nonstopmode -output-directory=%o %f"
-          "xelatex -shell-escape -interaction=nonstopmode -output-directory=%o %f"
-          "xelatex -shell-escape -interaction=nonstopmode -output-directory=%o %f")))
-#+end_src
-
-** MARKDOWN-MODE
-#+begin_src emacs-lisp
-(use-package markdown-mode
-  :ensure t
-  :config
-  (setq markdown-fontify-code-blocks-natively t))
+        '("latexmk -xelatex -shell-escape -interaction=nonstopmode -output-directory=%o %f")))
 #+end_src
 
 ** PDF
