@@ -186,7 +186,7 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
         doom-modeline-enable-visual-bell nil
         doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (load-theme 'doom-monokai-machine t)
+  (load-theme 'doom-gruvbox t)
   (doom-themes-org-config))
 
 (custom-set-faces
@@ -440,27 +440,39 @@ By default, the shell is set to 'zsh'.
   :ensure t
   :init
   (setq shell-file-name "/bin/zsh"
-  	    vterm-max-scrollback 5000))
+        vterm-max-scrollback 5000))
 
 (use-package vterm-toggle
   :ensure t
-  :after vterm
+  :after (vterm projectile)
   :config
-  (setq vterm-toggle-fullscreen-p nil)
+  (setq vterm-toggle-fullscreen-p nil
+        vterm-toggle-project-root t)
+
+  (defun ds/vterm--get-root ()
+    "Get the Projectile root directory of the current buffer.
+Return `default-directory` if not inside a project."
+    (if (projectile-project-p)
+        (projectile-project-root)
+      default-directory))
+
   (defun ds/vterm/toggle-bottom ()
-    "Toggle vterm window at the bottom of the current frame."
+    "Toggle vterm window at the bottom, auto-cd to project root."
     (interactive)
-    (let ((display-buffer-overriding-action
+    (let ((default-directory (ds/vterm--get-root))
+          (display-buffer-overriding-action
            '((display-buffer-reuse-window display-buffer-at-bottom)
              (direction . bottom)
              (dedicated . t)
              (reusable-frames . visible)
              (window-height . 0.30))))
       (vterm-toggle)))
+
   (defun ds/vterm/toggle-right ()
-    "Toggle vterm window on the right side of the current frame."
+    "Toggle vterm window on the right side, auto-cd to project root."
     (interactive)
-    (let ((display-buffer-overriding-action
+    (let ((default-directory (ds/vterm--get-root))
+          (display-buffer-overriding-action
            '((display-buffer-reuse-window display-buffer-in-direction)
              (direction . right)
              (dedicated . t)
@@ -767,10 +779,12 @@ By default, the shell is set to 'zsh'.
   :ensure t
   :config
   (yas-global-mode 1))
+(use-package yasnippet-snippets
+  :ensure t)
 
-(with-eval-after-load 'yasnippet
-  (define-key yas-keymap (kbd "<tab>") 'yas-next-field)
-  (define-key yas-keymap (kbd "TAB") 'yas-next-field))
+;; (with-eval-after-load 'yasnippet
+;;   (define-key yas-keymap (kbd "<tab>") 'yas-next-field)
+;;   (define-key yas-keymap (kbd "TAB") 'yas-next-field))
 #+end_src
 * GENERAL
 #+begin_src emacs-lisp
@@ -893,6 +907,7 @@ By default, the shell is set to 'zsh'.
   (org-mode . visual-line-mode)
   :custom
   (org-use-sub-superscripts '{})
+  (org-startup-with-inline-images t)
   (org-startup-indented nil)
   (org-hide-emphasis-markers t)
   (org-startup-folded 'content)
@@ -941,10 +956,14 @@ Default snippets as shown below:
 #+end_src
 *** ORG-BABEL
 #+begin_src emacs-lisp
+(use-package ob-mermaid
+  :ensure t)
+
 (setq org-confirm-babel-evaluate nil)
 (setq org-src-tab-acts-natively t)
 (setq org-src-preserve-indentation t)
 (with-eval-after-load 'org
+  (require 'ob-mermaid nil t)
   (run-with-idle-timer
    1 nil
    (lambda ()
@@ -954,6 +973,7 @@ Default snippets as shown below:
         (emacs-lisp . t)
         (shell . t)
         (python . t)
+        (mermaid . t)
         (C . t)
         )))))
 #+end_src
@@ -976,6 +996,12 @@ Default snippets as shown below:
         '("latexmk -xelatex -shell-escape -interaction=nonstopmode -output-directory=%o %f")))
 #+end_src
 
+** MARKDOWN-MODE
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :defer t)
+#+end_src
 ** PDF
 #+begin_src emacs-lisp
 (use-package pdf-tools
@@ -986,3 +1012,4 @@ Default snippets as shown below:
   (setq pdf-view-continuous t)
   (add-hook 'pdf-view-mode-hook (lambda () (display-line-numbers-mode -1))))
 #+end_src
+

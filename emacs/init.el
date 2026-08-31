@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 
 ;; load org-babel
 (require 'org)
