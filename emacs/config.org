@@ -313,6 +313,14 @@ Hide the mouse pointer while typing to keep the editing area unobstructed.
   	    ("C-a" . evil-numbers/inc-at-pt)
   	    ("C-x" . evil-numbers/dec-at-pt)))
 #+end_src
+** EVIL-GOGGLES
+#+begin_src emacs-lisp
+(use-package evil-goggles
+  :ensure t
+  :config
+  (evil-goggles-mode)
+  (evil-goggles-use-diff-faces))
+#+end_src
 * UTILS
 ** DASHBOARD
 #+begin_src emacs-lisp
