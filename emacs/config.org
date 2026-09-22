@@ -3,7 +3,7 @@
 #+AUTHOR: Disen-Shaw (DS)
 #+STARTUP: content
 
-* LAXIAL BINDING
+* LEXICAL BINDING
 
 #+begin_src emacs-lisp
 ;; -*- lexical-binding: t; -*-
@@ -111,11 +111,11 @@ These settings provide smoother and more predictable scrolling by keeping a marg
 (defun ds/setup-fonts ()
   (set-face-attribute 'default nil
     		          :font "Maple Mono NF CN"
-    		          :height 110
+    		          :height 100
     		          :weight 'medium)
   (set-fontset-font t 'han (font-spec
     			            :family "Maple Mono NF CN"
-    			            :height 110
+    			            :height 100
     			            :weight 'medium))
   (set-fontset-font t 'emoji (font-spec :family "Noto Color Emoji"))
 
@@ -358,6 +358,20 @@ Magit is the best interface to the version control system 'Git'.
 (use-package magit
   :ensure t)
 #+end_src
+
+** DIFF-HL
+#+begin_src emacs-lisp
+(use-package diff-hl
+  :ensure t
+  :init
+  (global-diff-hl-mode +1)
+  :config
+  (diff-hl-flydiff-mode +1)
+  (add-hook 'dired-mode-hook #'diff-hl-dired-mode)
+  (with-eval-after-load 'magit
+    (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
+    (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)))
+#+end_src
 ** PROJECTILE
 #+begin_src emacs-lisp
 (use-package projectile
@@ -375,6 +389,7 @@ Magit is the best interface to the version control system 'Git'.
 (use-package dired
   :ensure nil
   :config
+  (setq dired-kill-when-opening-new-dired-buffer t)
   (use-package dired-open
     :ensure t
     :config
@@ -382,14 +397,10 @@ Magit is the best interface to the version control system 'Git'.
                                   ("jpg" . "sxiv")
                                   ("png" . "sxiv")
                                   ("mkv" . "mpv")
-                                  ("mp4" . "mpv")))))
-
-(use-package dired
-  :ensure nil
-  :after evil 
-  :config
-  (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
-  (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file))
+                                  ("mp4" . "mpv"))))
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+    (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file)))
 
 (use-package peep-dired
   :ensure t
@@ -398,6 +409,10 @@ Magit is the best interface to the version control system 'Git'.
   :config
   (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
   (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file))
+
+(use-package nerd-icons-dired
+  :ensure t
+  :hook (dired-mode . nerd-icons-dired-mode))
 #+end_src
 ** ESHELL
 #+begin_src emacs-lisp
@@ -669,6 +684,7 @@ Return `default-directory` if not inside a project."
                #'cape-file)))
 (add-hook 'eglot-managed-mode-hook #'ds/cape-capf-setup)
 #+end_src
+
 ** MATCHING
 
 #+begin_src emacs-lisp
@@ -682,6 +698,23 @@ Return `default-directory` if not inside a project."
      (eglot-capf (styles orderless basic)))))
 #+end_src
 * PROGRAMMING SUPPORT
+** GDB
+#+begin_src emacs-lisp
+(use-package gdb-mi
+  :ensure nil
+  :init
+  (setq gdb-many-windows t
+        gdb-show-main t)
+  :config
+  (with-eval-after-load 'evil
+    (evil-set-initial-state 'gdb-parent-mode 'emacs)
+    (evil-set-initial-state 'gdb-breakpoints-mode 'emacs)
+    (evil-set-initial-state 'gdb-frames-mode 'emacs)
+    (evil-set-initial-state 'gdb-threads-mode 'emacs)
+    (evil-set-initial-state 'gdb-registers-mode 'emacs)
+    (evil-set-initial-state 'gdb-memory-mode 'emacs)
+    (evil-set-initial-state 'gdb-disassembly-mode 'emacs)))
+#+end_src
 ** TREESIT
 *** TREESIT-AUTO
 #+begin_src emacs-lisp
@@ -701,6 +734,13 @@ Return `default-directory` if not inside a project."
           (markdown-mode . markdown-ts-mode)))
 #+end_src 
 ** LANGUAGES
+*** PYTHON
+#+begin_src emacs-lisp
+(use-package pyvenv
+  :ensure t
+  :config
+  (pyvenv-mode 1))
+#+end_src
 *** YAML
 #+begin_src emacs-lisp
   (use-package yaml-mode
@@ -890,6 +930,15 @@ Return `default-directory` if not inside a project."
     "c y"  '(consult-yank-pop :wk "Show Clipboard History (Yank Pop)")
     "c r"  '(consult-register :wk "Manage Emacs Registers / Bookmarks")
 
+    "g"    '(:ignore t :wk "Git / Version Control")
+    "g g"  '(magit-status :wk "Magit Status")
+
+    "g n" '(diff-hl-next-hunk :wk "Next Hunk")
+    "g p" '(diff-hl-previous-hunk :wk "Previous Hunk")
+    "g v" '(diff-hl-show-hunk :wk "Preview Hunk Diff")
+    "g r" '(diff-hl-revert-hunk :wk "Revert/Undo Hunk")
+    "g s" '(diff-hl-stage-current-hunk :wk "Stage Hunk")
+
     ;; Terminal Functions =====================================================
     "t"   '(:ignore t :wk "Terminal and Shell Functions")
     "t v" '(ds/vterm/toggle-bottom :wk "Vterm toggle bottom.")
@@ -998,6 +1047,9 @@ Default snippets as shown below:
 
 ** MARKDOWN-MODE
 #+begin_src emacs-lisp
+(use-package markdown-ts-mode)
+
+;; for eldoc-box rendering
 (use-package markdown-mode
   :ensure t
   :defer t)
